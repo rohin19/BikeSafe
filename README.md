@@ -52,6 +52,8 @@ A User can write many Reviews (1 to many)\
 Many Routes can have many Hazards (many to many)\
 A Route can have many Reviews (1 to many)\
 
+![ER Diagram](./docs/ER_diagram.png)
+
 ### Framework Justification
 1. **Why two apps over one:** We can modify the backend without touching the frontend or modify frontend without touching the backend when needed. Better security and protection for valuable information and data.
 2. **Repo structure:** A monorepo structure with workspaces to manage frontend and backend will be used. This will make managing dependencies and setting up the project easier for our group. It will also allow us to set up a CI/CD pipeline easier if we wish to do so. 
