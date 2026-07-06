@@ -1,0 +1,17 @@
+{
+  "name": "bikesafe-vancouver",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:client": "npm run dev --workspace=frontend",
+    "dev:server": "npm run dev --workspace=backend",
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "test": "npm run test --workspace=backend"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
