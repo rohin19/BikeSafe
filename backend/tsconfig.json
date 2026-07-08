@@ -2,14 +2,9 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "commonjs",
-    "moduleResolution": "bundler",
     "rootDir": ".",
-    "outDir": "dist",
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "types": ["node"]
   },
-  "include": ["**/*.ts"]
 }
