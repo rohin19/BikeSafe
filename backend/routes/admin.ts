@@ -1,5 +1,7 @@
-const router = require('express').Router();
-const requireAdmin = require('../middleware/requireAdmin');
+import { Router } from 'express';
+import requireAdmin from '../middleware/requireAdmin';
+
+const router = Router();
 
 router.use(requireAdmin);
 
@@ -11,4 +13,4 @@ router.get('/users', async (req, res) => {
   res.json({ message: 'TODO: list users' });
 });
 
-module.exports = router;
+export default router;
