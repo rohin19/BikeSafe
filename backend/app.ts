@@ -3,6 +3,7 @@ import express, {Request, Response} from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
+import { pool } from './db';
 
 
 const app = express();
@@ -16,8 +17,20 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 
+// test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 
   res.json({ message: 'API is working' }); 
+});
+
+// test db connect working
+app.get('/api/health/db', async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query('SELECT now()');
+    res.json({message: 'Database connection is working'});
+  } catch (err) {
+    console.error('Database connection error: ', err);
+    res.status(500).json({status: 'error'});
+  }
 });
 
 export default app;

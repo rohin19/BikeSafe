@@ -59,7 +59,7 @@ CREATE TABLE hazards (
 CREATE TABLE reviews (
     review_id SERIAL PRIMARY KEY,
     route_id INTEGER NOT NULL REFERENCES routes(route_id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE SET NULL,
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
     review_rating DECIMAL(2, 1) NOT NULL,
     comment VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
