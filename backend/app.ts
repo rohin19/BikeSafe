@@ -3,6 +3,7 @@ import express, {Request, Response} from 'express';
 import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
+import hazardsRouter from './routes/hazards';
 import { pool } from './db';
 
 // create express app
@@ -31,6 +32,14 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
     console.error('Database connection error: ', err);
     res.status(500).json({status: 'error'});
   }
+});
+
+
+app.use('/api/hazards', hazardsRouter);
+
+// error handler
+app.use((req: Request, res: Response) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
 export default app;
