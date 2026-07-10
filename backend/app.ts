@@ -5,11 +5,11 @@ import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import { pool } from './db';
 
-
+// create express app
 const app = express();
-
 app.use(express.json());
 
+// development CORS configuration
 if (process.env.NODE_ENV === 'development') {
   app.use(cors({origin: 'http://localhost:5173'}));
 }
