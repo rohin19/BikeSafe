@@ -33,7 +33,7 @@ function App() {
       <header className="topbar">
         <div>
           <p className="eyebrow">SafeRoute</p>
-          <h1>Community safety dashboard</h1>
+          <h1>dashboard</h1>
         </div>
 
         <span className="session-status">

@@ -17,8 +17,8 @@ export default function AuthPanel({ user, onUserChange }) {
         const { name, value } = event.target
 
         setForm((current) => ({
-        ...current,
-        [name]: value,
+            ...current,
+            [name]: value,
         }))
     }
 
@@ -36,17 +36,17 @@ export default function AuthPanel({ user, onUserChange }) {
         const data =
             mode === 'login'
             ? await authApi.login({
-                email: form.email,
-                password: form.password,
+                    email: form.email,
+                    password: form.password,
                 })
             : await authApi.register(form)
 
-        onUserChange(data.user)
-        setForm(emptyForm)
+            onUserChange(data.user)
+            setForm(emptyForm)
         } catch (requestError) {
-        setError(requestError.message)
+            setError(requestError.message)
         } finally {
-        setBusy(false)
+            setBusy(false)
         }
     }
 
@@ -56,11 +56,11 @@ export default function AuthPanel({ user, onUserChange }) {
 
         try {
         await authApi.logout()
-        onUserChange(null)
+            onUserChange(null)
         } catch (requestError) {
-        setError(requestError.message)
+            setError(requestError.message)
         } finally {
-        setBusy(false)
+            setBusy(false)
         }
     }
 
@@ -68,20 +68,20 @@ export default function AuthPanel({ user, onUserChange }) {
         return (
         <section className="panel account-card">
             <div>
-            <p className="eyebrow">Signed in</p>
-            <h2>{user.name}</h2>
-            <p>{user.email}</p>
+                <p className="eyebrow">Signed in</p>
+                <h2>{user.name}</h2>
+                <p>{user.email}</p>
 
-            <span className="badge">{user.role}</span>
+                <span className="badge">{user.role}</span>
             </div>
 
             <button
-            className="button secondary"
-            type="button"
-            onClick={logout}
-            disabled={busy}
+                className="button secondary"
+                type="button"
+                onClick={logout}
+                disabled={busy}
             >
-            {busy ? 'Logging out…' : 'Log out'}
+                {busy ? 'Logging out…' : 'Log out'}
             </button>
 
             {error && <p className="message error">{error}</p>}
@@ -91,90 +91,84 @@ export default function AuthPanel({ user, onUserChange }) {
 
     return (
         <section className="panel auth-panel">
-        <div className="segmented">
-            <button
-            type="button"
-            className={mode === 'login' ? 'active' : ''}
-            onClick={() => changeMode('login')}
-            >
-            Log in
-            </button>
+            <div className="segmented">
+                <button
+                    type="button"
+                    className={mode === 'login' ? 'active' : ''}
+                    onClick={() => changeMode('login')}
+                >
+                    Log in
+                </button>
 
-            <button
-            type="button"
-            className={mode === 'register' ? 'active' : ''}
-            onClick={() => changeMode('register')}
-            >
-            Register
-            </button>
-        </div>
+                <button
+                    type="button"
+                    className={mode === 'register' ? 'active' : ''}
+                    onClick={() => changeMode('register')}
+                >
+                    Register
+                </button>
+            </div>
 
-        <div className="auth-description">
-            <p className="eyebrow">Account</p>
+            <div className="auth-description">
+                <p className="eyebrow">Account</p>
 
-            <h2>
-            {mode === 'login'
-                ? 'Welcome back'
-                : 'Create an account'}
-            </h2>
+                <h2>
+                    {mode === 'login' ? 'Welcome back' : 'Create an account'}
+                </h2>
 
-            <p>
-            {mode === 'login'
-                ? 'Sign in to report and manage hazards.'
-                : 'Create an account to begin reporting hazards.'}
-            </p>
-        </div>
+                <p>
+                    {mode === 'login'
+                        ? 'Sign in to report and manage hazards.'
+                        : 'Create an account to begin reporting hazards.'}
+                </p>
+            </div>
 
-        <form className="form-grid" onSubmit={submit}>
-            {mode === 'register' && (
-            <label>
-                Name
+            <form className="form-grid" onSubmit={submit}>
+                {mode === 'register' && (
+                    <label>
+                        Name
+                        <input
+                            name="name"
+                            value={form.name}
+                            onChange={updateField}
+                            required
+                        />
+                    </label>
+                )}
+
+                <label>
+                    Email
                 <input
-                name="name"
-                value={form.name}
-                onChange={updateField}
-                required
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={updateField}
+                    required
                 />
-            </label>
-            )}
+                </label>
 
-            <label>
-            Email
-            <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={updateField}
-                required
-            />
-            </label>
+                <label>
+                    Password
+                    <input
+                        name="password"
+                        type="password"
+                        minLength="8"
+                        value={form.password}
+                        onChange={updateField}
+                        required
+                    />
+                </label>
 
-            <label>
-            Password
-            <input
-                name="password"
-                type="password"
-                minLength="8"
-                value={form.password}
-                onChange={updateField}
-                required
-            />
-            </label>
+                {error && <p className="message error">{error}</p>}
 
-            {error && <p className="message error">{error}</p>}
-
-            <button
-            className="button primary"
-            type="submit"
-            disabled={busy}
-            >
-            {busy
-                ? 'Please wait…'
-                : mode === 'login'
-                ? 'Log in'
-                : 'Create account'}
-            </button>
-        </form>
+                <button
+                    className="button primary"
+                    type="submit"
+                    disabled={busy}
+                >
+                    {busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
+                </button>
+            </form>
         </section>
     )
 }
