@@ -110,6 +110,39 @@ Replace `9` with the hazard ID you wish to delete.
 
 ---
 
+## Auth Testing
+### Register a User
+> [!warning] Note: Since we are dealing with cookies and tokens, `curl` doesn't keep a cookie jar (a way to contain cookies like browsers do). So we use `-c cookies.txt` to save the cookie curl receives, and `-b cookies.txt` to send it back on later requests. Feel free to delete the `cookies.txt` after testing.
+
+<br>
+
+```bash
+curl -X POST http://localhost:3001/api/auth/register -H \
+"Content-Type: application/json" \
+-c cookies.txt \
+-d '{"name":"Test User","email":"test@example.com","password":"password123"}'
+```
+---
+### Logging in User
+```bash
+curl -X POST http://localhost:3001/api/auth/login  -H \
+"Content-Type: application/json" \
+-c cookies.txt \
+-d '{"email":"test@example.com","password":"password123"}'
+```
+---
+### Get current User (protected route)
+```bash
+curl -X GET http://localhost:3001/api/auth/me -b cookies.txt
+```
+---
+###
+```bash
+curl -X POST http://localhost:3001/api/auth/logout -b cookies.txt -c cookies.txt
+```
+
+---
+
 ## Pretty Printing JSON
 
 To make API responses easier to read:
