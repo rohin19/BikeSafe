@@ -1,0 +1,15 @@
+export interface Route {
+    route_id?: number,
+    start_name: string,
+    start_latitude: number,
+    start_longitude: number,
+    destination_name: string,
+    destination_latitude: number,
+    destination_longitude: number,
+    elevation: number,
+    distance: number,
+    duration: number,
+    safety_score: number,
+    created_at?: Date,
+    created_by: number,
+}

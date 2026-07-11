@@ -1,0 +1,44 @@
+GET http://localhost:3001/api/hazards
+
+###
+
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "title": "Cement truck blocking bike lane",
+  "description": "Cement truck for roadway construction is parked in the northbound bike lane",
+  "category": "construction",
+  "severity": 4,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+###
+
+GET http://localhost:3001/api/hazards/5
+
+###
+
+GET http://localhost:3001/api/hazards/stats
+
+###
+
+PATCH http://localhost:3001/api/hazards/9
+Content-Type: application/json
+
+{
+    "title": "Construction blocking eastbound bike lane",
+    "description": "Equipment partially blocks the eastbound bike lane.",
+    "category": "construction",
+    "current_status": "approved",
+    "severity": 4,
+    "latitude": 49.2827,
+    "longitude": -123.1207,
+    "image_url": null
+}
+
+###
+
+DELETE http://localhost:3001/api/hazards/9
