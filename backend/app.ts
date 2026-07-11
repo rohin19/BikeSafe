@@ -17,6 +17,7 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/hazards', hazardsRouter);
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 
@@ -34,8 +35,6 @@ app.get('/api/health/db', async (req: Request, res: Response) => {
   }
 });
 
-
-app.use('/api/hazards', hazardsRouter);
 
 // error handler
 app.use((req: Request, res: Response) => {
