@@ -21,8 +21,19 @@ function setAuthCookie(res: Response, payload: JwtPayload): void {
 
 const router = Router();
 
-router.post('/login', async (req, res) => {
-    res.json({ message: 'TODO: implement login' });
+router.post('/login', async (req: Request, res: Response) => {
+    const { email, password} = req.body ?? {}; //fallback to empty obj if no req.body
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const row = result.rows[0];
+    if (!row) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const match = await bcrypt.compare(password, row.hashed_password);
+    if (!match) return res.status(401).json({ error: 'Invalid credentials' });
+
+    setAuthCookie(res, { user_id: row.user_id, role: row.role });
+    return res.json({
+        user: {user_id:row.user_id, name: row.name, email: row.email, role:row.role},
+    });
 });
 
 router.post('/register', async (req: Request, res: Response) => {
