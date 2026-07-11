@@ -5,10 +5,12 @@ import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import hazardsRouter from './routes/hazards';
 import { pool } from './db';
+import cookieParser from 'cookie-parser';
 
 // create express app
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // development CORS configuration
 if (process.env.NODE_ENV === 'development') {
