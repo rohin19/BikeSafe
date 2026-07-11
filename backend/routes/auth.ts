@@ -60,4 +60,17 @@ router.post('/register', async (req: Request, res: Response) => {
     return res.status(200).json({ user });
 });
 
+router.post('/logout', (req: Request, res: Response) => {
+    res.clearCookie('token');
+    return res.json({ ok: true });
+});
+
+// route to get user info, with requireAuth it acts as an auth guard to check if the cookie's JWT token and its payload are intact (meaning a user is logged in/token not expired)
+router.get('/me', requireAuth, async(req:Request, res:Response) => {
+    const result = await pool.query(
+        'SELECT user_id, name, email, role FROM users WHERE user_id = $1', [req.user!.user_id]
+    );
+    return res.json({ user: result.rows[0] ?? null });
+})
+
 export default router;
