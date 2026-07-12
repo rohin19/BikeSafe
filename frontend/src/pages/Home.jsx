@@ -8,7 +8,7 @@ export default function Home({ user }) {
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
 
-  // runs two requests in parallel (sethazards, setStates), runs once at beginning
+  // runs two requests in parallel (sethazards, setStates), runs once at beginning. 
   useEffect(() => {
     Promise.all([hazardApi.list(), hazardApi.stats()])
       .then(([list, statsData]) => {
@@ -22,6 +22,7 @@ export default function Home({ user }) {
   if (busy) return <div className="page">Loading...</div>
   if (error) return <div className="page">{error}</div>
 
+  // see the figma draft but these can be used eventually in the jsx/tsx
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
   const reportedToday = hazards.filter((h) => new Date(h.created_at).getTime() > oneDayAgo).length
   const reportedByYou = hazards.filter((h) => h.user_id === user.user_id).length
@@ -40,8 +41,6 @@ export default function Home({ user }) {
       <Link to="/hazards/new" className="button primary">
       + Report a hazard
       </Link>
-      
-      
     </div>
   )
   
