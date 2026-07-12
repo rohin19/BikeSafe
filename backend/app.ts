@@ -4,6 +4,7 @@ import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import hazardsRouter from './routes/hazards';
+import gbfsRouter from './routes/gbfs';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
 
@@ -20,6 +21,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
+app.use('/api/gbfs', gbfsRouter); 
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 

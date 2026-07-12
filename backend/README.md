@@ -106,9 +106,19 @@ Replace `9` with the hazard ID you wish to update.
 curl.exe -X DELETE http://localhost:3001/api/hazards/9
 ```
 
-Replace `9` with the hazard ID you wish to delete.
-
 ---
+## Bike Share API Testing
+### Get Lime Stations Data
+
+```bash
+curl.exe GET http://localhost:3001/api/gbfs/lime/stations
+```
+
+### Get Lime Free-Floating Vehicles Data
+
+```bash
+curl.exe GET http://localhost:3001/api/gbfs/lime/freeBikes
+```
 
 ## Auth Testing
 ### Register a User
