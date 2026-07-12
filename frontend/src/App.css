@@ -34,6 +34,9 @@
 .button.primary {
   display: block;
   width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  align-self: center;
   background: var(--accent-blue);
   color: #fff;
   border: none;
@@ -44,17 +47,34 @@
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.button.primary:hover {
+  background: #2f6fe0;
+}
+
+.button.primary:active {
+  transform: scale(0.98);
 }
 
 .map-placeholder {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  align-self: center;
   background: var(--mobile-card);
-  border: 1px solid var(--mobile-border);
+  border: 1px dashed var(--mobile-border);
   border-radius: var(--radius-lg);
   height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--mobile-text-muted);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-sizing: border-box;
 }
 
 .bottom-nav {
@@ -84,3 +104,5 @@
 .nav-item.active {
   color: var(--accent-blue);
 }
+
+/* Home.jsx */
