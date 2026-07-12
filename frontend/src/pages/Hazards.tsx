@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { hazardApi } from '../services/api'
 import HazardCard from '../components/HazardCard'
+import type { Hazard } from '../types'
 
 export default function Hazards({ user }) {
-  const [hazards, setHazards] = useState([])
+  const [hazards, setHazards] = useState<Hazard[]>([])
   const [busy, setBusy] = useState(true) //just tracks if the api request is in progress;
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState(null) // keeps track of hazard id up for deletion
 
-  async function handleDelete(hazardId) {
+  async function handleDelete(hazardId: number) {
     if (!window.confirm('Delete this hazard report? This cannot be undone. ')) {
       return
     }
@@ -18,7 +17,7 @@ export default function Hazards({ user }) {
       await hazardApi.remove(hazardId)
       setHazards((prev) => prev.filter((h) => h.hazard_id !== hazardId)) // creates a new hazards array without the targeted one for deletion
     } catch (err) {
-      setError(err.message)
+      setError(err instanceof Error ? err.message: 'Something went wrong')
     } finally {
       setDeletingId(null)
     }
