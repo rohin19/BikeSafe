@@ -19,7 +19,7 @@ export default function BottomNav() {
                     to={item.to}
                     // end controls if the link isActive if the URL matches exactly
                     end={item.to === '/'}
-                    // isActive comes from react-router
+                    // isActive comes from react-router, checks current URL and has final say
                     className={({ isActive }) => (isActive ? 'nav-item active':'nav-item')}
                 >
                     <span>{item.label}</span>
