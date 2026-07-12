@@ -5,7 +5,7 @@ import HazardCard from '../components/HazardCard'
 
 export default function Hazards() {
   const [hazards, setHazards] = useState([])
-  const [busy, setBusy] = useState(true)
+  const [busy, setBusy] = useState(true) //just tracks if the api request is in progress;
   const [error, setError] = useState('')
 
   useEffect(() => {
@@ -15,6 +15,9 @@ export default function Hazards() {
     .catch((err) => setError(err.message))
     .finally(() => setBusy(false))
   }, [])
+
+  if (busy) return <div className="page">Loading...</div>
+  if (error) return <div className="page">{error}</div>
 
   return (
     <div className="page">
