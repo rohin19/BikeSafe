@@ -1,0 +1,7 @@
+### Get Cleaned Station Data (Lime Vancouver)
+GET http://localhost:3001/api/gbfs/lime/stations
+
+###
+
+### Get Free-Floating Vehicles Data (Lime Vancouver)
+GET http://localhost:3001/api/gbfs/lime/freeBikes

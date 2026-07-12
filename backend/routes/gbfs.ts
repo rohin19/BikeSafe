@@ -134,7 +134,7 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
 });
 
 // --- 2. VEHICLES ENDPOINT (Free floating bikes/scooters) ---
-gbfsRouter.get('/lime/vehicles', async (req: Request, res: Response) => {
+gbfsRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
     try {
         const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
         const freeBikesData = await freeBikesRes.json();
