@@ -20,7 +20,9 @@ export default function HazardCard({ hazard, isAdmin, onDelete, deleting }) {
                     type="button"
                     className="button danger"
                     disabled={deleting}
-                    onClick={() => onDelete(hazard.hazard_id)}></button>
+                    onClick={() => onDelete(hazard.hazard_id)}>
+                        {deleting ? 'Deleting...' : 'X'}
+                    </button>
                 )}
                 Lat {Number(hazard.latitude).toFixed(3)}, Lng {Number(hazard.longitude).toFixed(3)} .{' '}
                 {formatRelativeTime(hazard.created_at)}
