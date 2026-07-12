@@ -1,8 +1,23 @@
-export default function ProfilePage() {
+import { authApi } from '../services/api'
+
+export default function ProfilePage({ user, onUserChange }) {
+    async function handleLogout() {
+        try {
+            await authApi.logout()
+        } finally {
+            onUserChange(null)
+        }
+    }
+
     return (
         <div className="page">
             <h1>Profile</h1>
-            <p>Coming soon.</p>
+            <p className="text-muted">{user.name}</p>
+            <p className="text-muted">{user.email}</p>
+
+            <button className="button secondary" onClick={handleLogout}>
+                Log out
+            </button>
         </div>
     )
 }
