@@ -24,21 +24,70 @@ const gbfsRouter = Router();
 // {"name":"system_pricing_plans","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/system_pricing_plans.json"},
 // {"name":"geofencing_zones","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/geofencing_zones.json"}]}}}
 
-interface StationInfo {
+// 1. Station Information
+interface RawStationInfo {
     station_id: string;
     name: string;
     lat: number;
     lon: number;
 }
 
-interface StationStatus {
-    station_id: string;
-    num_vehicles_available: number;
-    num_docks_available: number;
-    is_renting: boolean;
+// 2. Station Status
+interface VehicleTypeAvailable {
+    vehicle_type_id: string;
+    count: number;
 }
 
-interface FreeBike {
+interface VehicleDockAvailable {
+    vehicle_type_ids: string[];
+    count: number;
+}
+
+interface RawStationStatus {
+    station_id: string;
+    num_vehicles_available: number;
+    vehicle_types_available: VehicleTypeAvailable[];
+    num_docks_available: number;
+    vehicle_docks_available: VehicleDockAvailable[];
+    is_installed: boolean;
+    is_renting: boolean;
+    is_returning: boolean;
+    last_reported: number;
+}
+
+// 3. Free Bike Status
+interface RawFreeBike {
+    bike_id: string;
+    lat: number;
+    lon: number;
+    is_reserved: boolean;
+    is_disabled: boolean;
+    current_range_meters: number;
+    vehicle_type_id: string;
+    vehicle_type: string;
+    last_reported: number;
+}
+
+// 4. Vehicle Types
+// interface VehicleType {
+//   vehicle_type_id: string;
+//   form_factor: 'scooter' | 'bicycle' | string;
+//   propulsion_type: 'electric' | 'electric_assist' | 'human' | string;
+//   max_range_meters: number;
+// }
+
+// cleaned Types
+interface CleanStation {
+    id: string;
+    name: string;
+    lat: number;
+    lon: number;
+    bikesAvailable: number;
+    docksAvailable: number;
+    isRenting: boolean;
+}
+
+interface CleanFreeBikes {
     bike_id: string;
     lat: number;
     lon: number;
@@ -46,75 +95,62 @@ interface FreeBike {
     current_range_meters: number;
 }
 
-
-gbfsRouter.get('/lime', async (req: Request, res: Response) => {
+// --- 1. STATIONS ENDPOINT (Info + Status joined) ---
+gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
     try {
-
         const infoRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_information");
         const statusRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_status");
-        const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
 
         const infoData = await infoRes.json();
         const statusData = await statusRes.json();
-        const freeBikesData = await freeBikesRes.json();
 
         // Index station status by ID for O(1) lookups
-        const statusMap = new Map<string, StationStatus>();
-        statusData.data.stations.forEach((status: StationStatus) => {
+        const statusMap = new Map<string, RawStationStatus>();
+        statusData.data.stations.forEach((status: RawStationStatus) => {
             statusMap.set(status.station_id, status);
         });
 
-        // Construct GeoJSON Features
-        const features: any[] = [];
-
-        // Add Stations
-        infoData.data.stations.forEach((info: StationInfo) => {
+        // Construct the CleanStation array
+        const cleanStations: CleanStation[] = infoData.data.stations.map((info: RawStationInfo): CleanStation => {
             const status = statusMap.get(info.station_id);
             
-            features.push({
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: [info.lon, info.lat] 
-                },
-                properties: {
-                    type: "station",
-                    id: info.station_id,
-                    name: info.name,
-                    bikesAvailable: status ? status.num_vehicles_available : 0,
-                    docksAvailable: status ? status.num_docks_available : 0,
-                    isRenting: status ? status.is_renting : false
-                }
-            });
+            return {
+                id: info.station_id,
+                name: info.name,
+                lat: info.lat,
+                lon: info.lon,
+                bikesAvailable: status ? status.num_vehicles_available : 0,
+                docksAvailable: status ? status.num_docks_available : 0,
+                isRenting: status ? status.is_renting : false
+            };
         });
 
-        // Add Free-floating Vehicles (Scooters/E-bikes parked on the street)
-        freeBikesData.data.bikes.forEach((bike: FreeBike) => {
-            features.push({
-                type: "Feature",
-                geometry: {
-                    type: "Point",
-                    coordinates: [bike.lon, bike.lat]
-                },
-                properties: {
-                    type: "free_vehicle",
-                    id: bike.bike_id,
-                    name: `Lime ${bike.vehicle_type}`,
-                    vehicleType: bike.vehicle_type,
-                    rangeMeters: bike.current_range_meters
-                }
-            });
-        });
-
-        // 4. Return unified GeoJSON FeatureCollection
-        return res.json({
-            type: "FeatureCollection",
-            features: features
-        });
+        // Return the clean array
+        return res.status(200).json(cleanStations);
 
     } catch (error) {
-        console.error('Error fetching bike share data:', error);
-        return res.status(500).json({ error: 'Internal Server Error' });
+        return res.status(500).json({ error: 'Failed to fetch stations' });
+    }
+});
+
+// --- 2. VEHICLES ENDPOINT (Free floating bikes/scooters) ---
+gbfsRouter.get('/lime/vehicles', async (req: Request, res: Response) => {
+    try {
+        const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
+        const freeBikesData = await freeBikesRes.json();
+
+        const cleanBikes: CleanFreeBikes[] = freeBikesData.data.bikes.map((bike: any) => ({
+            bike_id: bike.bike_id,
+            lat: bike.lat,
+            lon: bike.lon,
+            vehicle_type: bike.vehicle_type,
+            current_range_meters: bike.current_range_meters
+        }));
+
+        return res.json(cleanBikes);
+
+    } catch (error) {
+        return res.status(500).json({ error: 'Failed to fetch vehicles' });
     }
 });
 
