@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 
 import AuthPanel from './components/AuthPanel'
+import AppLayout from './components/AppLayout'
+import Home from './pages/Home'
+import Hazards from './pages/Hazards'
+import ReportHazard from './pages/ReportHazard'
+import RoutesPage from './pages/RoutesPage'
+import BikeSharePage from './pages/BikeSharePage'
+import ProfilePage from './pages/ProfilePage'
 import { authApi } from './services/api'
 
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
   const [user, setUser] = useState(null)
   const [checkingSession, setCheckingSession] = useState(true)
 
@@ -17,38 +21,41 @@ function App() {
   useEffect(() => {
     authApi
       .me()
-      .then((data) => {
-        setUser(data.user)
-      })
-      .catch(() => {
-        setUser(null)
-      })
-      .finally(() => {
-        setCheckingSession(false)
-      })
+      .then((data) => setUser(data.user))
+      .catch(() => setUser(null))
+      .finally(() => setCheckingSession(false))
   }, [])
 
+  if (checkingSession) {
+    return <main className='app-shell'>Checking session...</main>
+  }
+
+  // guard clause here, not logged in? show the login/register panel
+  if (!user) {
+    return (
+      <main className="app-shell">
+        <AuthPanel user={user} onUserChange={setUser}/>
+      </main>
+    )
+  }
+
   return (
-    <main className="app-shell">
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">SafeRoute</p>
-          <h1>dashboard</h1>
-        </div>
-
-        <span className="session-status">
-          {checkingSession ? 'Checking session…' : user ? `Hello, ${user.name}` : 'Guest'}
-        </span>
-      </header>
-
-      <div className="page-grid">
-        <AuthPanel
-          user={user}
-          onUserChange={setUser}
-        />
-      </div>
-    </main>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout/>}>
+          <Route path="/" element={<Home user={user} />}/>
+          <Route path="/hazards" element={<Hazards />}/>
+          <Route path="/hazards/new" element={<ReportHazard user={user} />}/>
+          <Route path="/routes" element={<RoutesPage/>}/>
+          <Route path="/bikeshare" element={<BikeSharePage />}/>
+          <Route path="/profile" element={<ProfilePage user={user} onUserChange={setUser}/>}/>
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace/>}/>
+      </Routes>
+    </BrowserRouter>
   )
 }
+
+// <Route path="*" element={<Navigate to="/" replace/>}/> is a fallback route, if the URL doens't match any of what was placed in the earlier Routes, it redirects them to Home
 
 export default App
