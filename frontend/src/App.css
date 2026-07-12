@@ -1,3 +1,9 @@
+/* ============================================================
+   Shell / Layout
+   The dark mobile-app frame that wraps every authed route,
+   rendered by AppLayout.jsx. Shared across all pages.
+   ============================================================ */
+
 .website-frame {
   width: 100%;
   margin: 0 auto;
@@ -19,6 +25,12 @@
   gap: 16px;
 }
 
+/* ============================================================
+   Shared primitives
+   Generic building blocks reused across Home, Hazards, and
+   ReportHazard (cards, muted captions, etc).
+   ============================================================ */
+
 .card {
   background: var(--mobile-card);
   border:1px solid var(--mobile-border);
@@ -30,6 +42,12 @@
   color: var(--mobile-text-muted);
   font-size: 14px;
 }
+
+/* ============================================================
+   Buttons
+   .button.primary  - filled blue pill (e.g. "+ Report a hazard")
+   .button.secondary - outlined pill (e.g. "Use my current location")
+   ============================================================ */
 
 .button.primary {
   display: block;
@@ -58,6 +76,33 @@
   transform: scale(0.98);
 }
 
+.button.secondary {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 0 auto;
+  align-self: center;
+  background: transparent;
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue);
+  border-radius: var(--radius-full);
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.button.secondary:hover {
+  background: var(--accent-blue-bg);
+}
+
+/* ============================================================
+   Home.jsx
+   Map placeholder card on the Home dashboard.
+   ============================================================ */
+
 .map-placeholder {
   width: 100%;
   max-width: 320px;
@@ -76,6 +121,11 @@
   text-transform: uppercase;
   box-sizing: border-box;
 }
+
+/* ============================================================
+   Bottom nav (BottomNav.jsx)
+   Fixed 5-tab nav shared across every route via AppLayout.jsx.
+   ============================================================ */
 
 .bottom-nav {
   position: fixed;
@@ -105,4 +155,44 @@
   color: var(--accent-blue);
 }
 
-/* Home.jsx */
+/* ============================================================
+   ReportHazard.jsx
+   Form field styling - the <form> itself has className="page",
+   so these target its descendant label/input/select/textarea.
+   ============================================================ */
+
+.page label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--mobile-text-muted);
+}
+
+.page input,
+.page select,
+.page textarea {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  align-self: center;
+  box-sizing: border-box;
+  background: var(--mobile-card);
+  border: 1px solid var(--mobile-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 15px;
+  color: var(--mobile-text);
+  font-family: inherit;
+}
+
+.page input:focus,
+.page select:focus,
+.page textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
+.page textarea {
+  resize: vertical;
+}
