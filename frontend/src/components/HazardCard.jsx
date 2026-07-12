@@ -7,7 +7,7 @@ function formatRelativeTime(dateString) {
     const hours = Math.floor(minutes / 60)
     if (hours < 24) return `${hours} hr${hours === 1 ? '' : 's'} ago`
     const days = Math.floor(hours / 24)
-    return `${days} days${days === 1 ? '' : 's'} ago`
+    return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
 export default function HazardCard({ hazard }) {
