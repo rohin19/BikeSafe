@@ -5,6 +5,22 @@
 ### CMPT 372 - Project Proposal
 Group 10: Elton Chen, Tim Supan, Rohin Aulakh, Dat Chau, Yu Wu
 
+# Current Setup
+Deployed URL - http://34.187.197.133/
+Both DB and Web-app deployed on GCP VM instances
+No container system used so far
+
+## Screenshots of Current State:
+<img width="428" height="664" alt="Screenshot 2026-07-12 at 10 08 16 AM" src="https://github.com/user-attachments/assets/e854b49b-0b0e-440c-895b-940ceaf79c38" />
+
+<img width="392" height="856" alt="Screenshot 2026-07-12 at 10 09 29 AM" src="https://github.com/user-attachments/assets/87855943-df76-48d6-8da7-1a6623ce3d50" />
+<img width="392" height="856" alt="Screenshot 2026-07-12 at 10 09 50 AM" src="https://github.com/user-attachments/assets/43b13465-cf99-4a6c-83ef-8333e9e2aea1" />
+
+## Wireframes:
+<img width="243" height="528" alt="Screenshot 2026-07-12 at 10 03 45 AM" src="https://github.com/user-attachments/assets/f874a869-b9f5-4e2d-9b69-c5ff0090be90" />
+<img width="243" height="528" alt="Screenshot 2026-07-12 at 10 03 32 AM" src="https://github.com/user-attachments/assets/9c5930d7-fa1c-4729-9a3a-5872ea009f33" />
+<img width="243" height="528" alt="Screenshot 2026-07-12 at 10 03 23 AM" src="https://github.com/user-attachments/assets/eeea806f-4200-493f-99ac-b7663f8f1789" />
+
 ---
 ### The name of our application is BikeSafe
 A web application designed to help cyclists plan their routes according to safety, not just distance and elevation. In addition, it will provide information on bike dock availability for bike share services. This application would also provide navigation and real-time user reported alerts to improve biking experience around the city. Moreover, our application would provide route discovery and reviews of existing routes based on users in their area. 
