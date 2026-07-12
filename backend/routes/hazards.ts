@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../db';
+import requireAdmin from '../middleware/requireAdmin';
 // import type { Hazard } from '../types/hazard';
 
 const hazardsRouter = Router();
@@ -130,7 +131,7 @@ hazardsRouter.patch('/:id', async (req, res) => {
 // ---------- DELETE REQUESTS ----------
 
 // DELETE /api/hazards/:id - delete a hazard by id
-hazardsRouter.delete('/:id', async (req, res) => {
+hazardsRouter.delete('/:id', requireAdmin, async (req, res) => {
     try {
         const hazardID = req.params.id;
         const result = await pool.query(
