@@ -1,5 +1,6 @@
+import type { User, Hazard, NewHazard, HazardStats, Route } from '../types'
 
-async function apiRequest(path, options = {}) {
+async function apiRequest(path:string, options: RequestInit = {}) {
     // includes credential cuz authentication uses http only cookie
     const response = await fetch(path, {
         credentials: 'include',
@@ -22,13 +23,13 @@ async function apiRequest(path, options = {}) {
 export const authApi = {
     me: () => apiRequest('/api/auth/me'),
 
-    login: (credentials) =>
+    login: (credentials: { email: string; password: string}) =>
         apiRequest('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify(credentials),
     }),
 
-    register: (details) =>
+    register: (details: {name: string; email: string; password: string}) =>
         apiRequest('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify(details),
@@ -45,19 +46,19 @@ export const hazardApi = {
 
     stats: () => apiRequest('/api/hazards/stats'),
 
-    create: (hazard) =>
+    create: (hazard: NewHazard) =>
         apiRequest('/api/hazards', {
         method: 'POST',
         body: JSON.stringify(hazard),
     }),
 
-    update: (hazardId, hazard) =>
+    update: (hazardId: number, hazard: Partial<NewHazard>) =>
         apiRequest(`/api/hazards/${hazardId}`, {
         method: 'PATCH',
         body: JSON.stringify(hazard),
     }),
 
-    remove: (hazardId) =>
+    remove: (hazardId: number) =>
         apiRequest(`/api/hazards/${hazardId}`, {
         method: 'DELETE',
     }),
