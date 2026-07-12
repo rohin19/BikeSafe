@@ -38,6 +38,13 @@
   padding: 16px;
 }
 
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .text-muted {
   color: var(--mobile-text-muted);
   font-size: 14px;
@@ -97,6 +104,33 @@
 .button.secondary:hover {
   background: var(--accent-blue-bg);
 }
+
+.button.danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+ .button.danger:hover {
+   background: var(--accent-red-bg);
+ }
+
+ .button.danger:disabled {
+   opacity: 0.5;
+   cursor: not-allowed;
+ }
 
 /* ============================================================
    Home.jsx

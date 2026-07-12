@@ -12,21 +12,25 @@ function formatRelativeTime(dateString) {
 
 export default function HazardCard({ hazard, isAdmin, onDelete, deleting }) {
     return (
-        <div className="card">
-            <strong>{hazard.category}</strong>
-            <div className="text-muted">
-                {isAdmin && (
-                    <button
-                    type="button"
-                    className="button danger"
-                    disabled={deleting}
-                    onClick={() => onDelete(hazard.hazard_id)}>
-                        {deleting ? 'Deleting...' : 'X'}
-                    </button>
-                )}
-                Lat {Number(hazard.latitude).toFixed(3)}, Lng {Number(hazard.longitude).toFixed(3)} .{' '}
-                {formatRelativeTime(hazard.created_at)}
-            </div>
+      <div className="card">
+        <div className="card-header">
+          <strong>{hazard.category}</strong>
+          {isAdmin && (
+            <button
+              type="button"
+              className="button danger"
+              disabled={deleting}
+              onClick={() => onDelete(hazard.hazard_id)}
+            >
+              {deleting ? "Deleting..." : "X"}
+            </button>
+          )}
         </div>
-    )
+        <div className="text-muted">
+          Lat {Number(hazard.latitude).toFixed(3)}, Lng{" "}
+          {Number(hazard.longitude).toFixed(3)} .{" "}
+          {formatRelativeTime(hazard.created_at)}
+        </div>
+      </div>
+    );
 }
