@@ -1,5 +1,6 @@
+import type { Hazard, HazardCardProps } from "../types";
 // the db only has latitute/long, not streename, so the subtext line shows short coordinates + relative time instead of a fake location string:
-function formatRelativeTime(dateString) {
+function formatRelativeTime(dateString: string) {
     const diffMs = Date.now() - new Date(dateString).getTime();
     const minutes = Math.floor(diffMs / 60000) 
     if (minutes < 1) return 'just now'
@@ -10,7 +11,7 @@ function formatRelativeTime(dateString) {
     return `${days} day${days === 1 ? '' : 's'} ago`
 }
 
-export default function HazardCard({ hazard, isAdmin, onDelete, deleting }) {
+export default function HazardCard({ hazard, isAdmin, onDelete, deleting }: HazardCardProps) {
     return (
       <div className="card">
         <div className="card-header">

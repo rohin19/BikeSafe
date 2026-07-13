@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { hazardApi } from '../services/api'
+import type { User, Hazard, HazardStats } from '../types'
 
-export default function Home({ user }) {
-  const [hazards, setHazards] = useState([])
-  const [stats, setStats] = useState(null)
+export default function Home({ user }: {user: User}) {
+  const [hazards, setHazards] = useState<Hazard[]>([])
+  const [stats, setStats] = useState<HazardStats | null>(null)
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
 
@@ -15,7 +16,7 @@ export default function Home({ user }) {
         setHazards(list)
         setStats(statsData)
       })
-      .catch((err) => setError(err.message))
+      .catch((err) => setError(err instanceof Error ? err.message : 'Something went wrong'))
       .finally(() => setBusy(false))
   }, [])
 
@@ -26,7 +27,7 @@ export default function Home({ user }) {
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
   const reportedToday = hazards.filter((h) => new Date(h.created_at).getTime() > oneDayAgo).length
   const reportedByYou = hazards.filter((h) => h.user_id === user.user_id).length
-  const topCategory = stats.categories[0] // { category, count } or undefined
+  const topCategory = stats?.categories[0] // { category, count } or undefined
 
   return (
     <div className="page">

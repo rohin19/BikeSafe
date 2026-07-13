@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { hazardApi } from "../services/api";
+import type { User } from "../types";
 
 const CATEGORIES = [
   "construction",
@@ -9,14 +10,14 @@ const CATEGORIES = [
   "road condition",
   "obstacle",
   "other",
-];
+] as const;
 
-export default function ReportHazard({ user }) {
+export default function ReportHazard({ user }: {user: User}) {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState(CATEGORIES[0]);
-  const [severity, setSeverity] = useState(1);
+  const [category, setCategory] = useState<string>(CATEGORIES[0]);
+  const [severity, setSeverity] = useState("1");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [busy, setBusy] = useState(false);
@@ -38,7 +39,7 @@ export default function ReportHazard({ user }) {
     );
   }
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
     setError("");
@@ -54,7 +55,7 @@ export default function ReportHazard({ user }) {
       });
       navigate("/hazards");
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setBusy(false);
     }
