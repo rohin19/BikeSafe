@@ -1,8 +1,10 @@
 import { hazardApi } from '../services/api'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import HazardCard from '../components/HazardCard'
-import type { Hazard } from '../types'
+import type { Hazard, User } from '../types'
 
-export default function Hazards({ user }) {
+export default function Hazards({ user }: { user: User | null}) {
   const [hazards, setHazards] = useState<Hazard[]>([])
   const [busy, setBusy] = useState(true) //just tracks if the api request is in progress;
   const [error, setError] = useState('')
