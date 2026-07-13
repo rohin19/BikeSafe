@@ -8,7 +8,7 @@ export default function Hazards({ user }: { user: User | null}) {
   const [hazards, setHazards] = useState<Hazard[]>([])
   const [busy, setBusy] = useState(true) //just tracks if the api request is in progress;
   const [error, setError] = useState('')
-  const [deletingId, setDeletingId] = useState(null) // keeps track of hazard id up for deletion
+  const [deletingId, setDeletingId] = useState<number | null>(null) // keeps track of hazard id up for deletion
 
   async function handleDelete(hazardId: number) {
     if (!window.confirm('Delete this hazard report? This cannot be undone. ')) {
