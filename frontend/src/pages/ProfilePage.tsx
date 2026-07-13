@@ -1,6 +1,7 @@
 import { authApi } from '../services/api'
+import type { ProfilePageProps } from '../types'
 
-export default function ProfilePage({ user, onUserChange }) {
+export default function ProfilePage({ user, onUserChange }: ProfilePageProps) {
     async function handleLogout() {
         try {
             await authApi.logout()

@@ -76,3 +76,8 @@ export interface AuthPanelProps {
   user: User | null;
   onUserChange: (user: User | null) => void;
 }
+
+export interface ProfilePageProps {
+      user: User
+      onUserChange: (user: User | null) => void
+  }
