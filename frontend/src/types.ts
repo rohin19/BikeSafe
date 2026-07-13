@@ -72,7 +72,7 @@ export interface Route {
   created_by: number;
 }
 
-interface AuthPanelProps {
+export interface AuthPanelProps {
   user: User | null;
   onUserChange: (user: User | null) => void;
 }

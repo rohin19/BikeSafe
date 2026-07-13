@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { authApi } from '../services/api'
+import type { User, AuthPanelProps } from '../types'
 
 const emptyForm = {
     name: '',
@@ -7,13 +8,13 @@ const emptyForm = {
     password: '',
 }
 
-export default function AuthPanel({ user, onUserChange }) {
+export default function AuthPanel({ user, onUserChange }: AuthPanelProps) {
     const [mode, setMode] = useState('login')
     const [form, setForm] = useState(emptyForm)
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
 
-    function updateField(event) {
+    function updateField(event: ChangeEvent<HTMLInputElement>) {
         const { name, value } = event.target
 
         setForm((current) => ({
@@ -22,12 +23,12 @@ export default function AuthPanel({ user, onUserChange }) {
         }))
     }
 
-    function changeMode(newMode) {
+    function changeMode(newMode: 'login' | 'register') {
         setMode(newMode)
         setError('')
     }
 
-    async function submit(event) {
+    async function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault()
         setBusy(true)
         setError('')
@@ -44,7 +45,7 @@ export default function AuthPanel({ user, onUserChange }) {
             onUserChange(data.user)
             setForm(emptyForm)
         } catch (requestError) {
-            setError(requestError.message)
+            setError(requestError instanceof Error ? requestError.message: 'Something went wrong!')
         } finally {
             setBusy(false)
         }
@@ -58,7 +59,7 @@ export default function AuthPanel({ user, onUserChange }) {
         await authApi.logout()
             onUserChange(null)
         } catch (requestError) {
-            setError(requestError.message)
+            setError(requestError instanceof Error ? requestError.message : 'Something went wrong')
         } finally {
             setBusy(false)
         }
@@ -152,7 +153,7 @@ export default function AuthPanel({ user, onUserChange }) {
                     <input
                         name="password"
                         type="password"
-                        minLength="8"
+                        minLength={8}
                         value={form.password}
                         onChange={updateField}
                         required
