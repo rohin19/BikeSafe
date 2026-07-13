@@ -22,6 +22,13 @@ export interface Hazard {
     created_at: string
 }
 
+export interface HazardCardProps {
+    hazard: Hazard
+    isAdmin: boolean
+    onDelete: (hazardId: number) => void
+    deleting: boolean
+}
+
 export interface NewHazard {
     user_id: number
     title: string
