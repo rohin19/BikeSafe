@@ -10,11 +10,12 @@ import RoutesPage from './pages/RoutesPage'
 import BikeSharePage from './pages/BikeSharePage'
 import ProfilePage from './pages/ProfilePage'
 import { authApi } from './services/api'
+import type { User } from './types'
 
 import './App.css'
 
 function App() {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
 
   // Check if the user have already been authenticated per refresh
