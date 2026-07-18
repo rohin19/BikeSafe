@@ -14,9 +14,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 // development CORS configuration
-if (process.env.NODE_ENV === 'development') {
-  app.use(cors({origin: 'http://localhost:5173'}));
-}
+const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'http://34.187.197.133';
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
