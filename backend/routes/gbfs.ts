@@ -24,7 +24,6 @@ const gbfsRouter = Router();
 // {"name":"system_pricing_plans","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/system_pricing_plans.json"},
 // {"name":"geofencing_zones","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/geofencing_zones.json"}]}}}
 
-// 1. Station Information
 interface RawStationInfo {
     station_id: string;
     name: string;
@@ -32,7 +31,6 @@ interface RawStationInfo {
     lon: number;
 }
 
-// 2. Station Status
 interface VehicleTypeAvailable {
     vehicle_type_id: string;
     count: number;
@@ -78,21 +76,23 @@ interface RawFreeBike {
 
 // cleaned Types
 interface CleanStation {
-    id: string;
+    station_id: string;
     name: string;
     lat: number;
     lon: number;
-    bikesAvailable: number;
-    docksAvailable: number;
-    isRenting: boolean;
+    num_vehicles_available: number;
+    vehicle_types_available: VehicleTypeAvailable[];
+    num_docks_available: number;
+    vehicle_docks_available: VehicleDockAvailable[];
 }
 
 interface CleanFreeBikes {
     bike_id: string;
     lat: number;
     lon: number;
+    is_reserved: boolean;
+    is_disabled: boolean;
     vehicle_type: string;
-    current_range_meters: number;
 }
 
 // --- 1. STATIONS ENDPOINT (Info + Status joined) ---
@@ -115,13 +115,14 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
             const status = statusMap.get(info.station_id);
             
             return {
-                id: info.station_id,
+                station_id: info.station_id,
                 name: info.name,
                 lat: info.lat,
                 lon: info.lon,
-                bikesAvailable: status ? status.num_vehicles_available : 0,
-                docksAvailable: status ? status.num_docks_available : 0,
-                isRenting: status ? status.is_renting : false
+                num_vehicles_available: status ? status.num_vehicles_available : 0,
+                vehicle_types_available: status ? status.vehicle_types_available : [],
+                num_docks_available: status ? status.num_docks_available : 0,
+                vehicle_docks_available: status ? status.vehicle_docks_available: []
             };
         });
 
@@ -139,12 +140,13 @@ gbfsRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
         const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
         const freeBikesData = await freeBikesRes.json();
 
-        const cleanBikes: CleanFreeBikes[] = freeBikesData.data.bikes.map((bike: any) => ({
+        const cleanBikes: CleanFreeBikes[] = freeBikesData.data.bikes.map((bike: RawFreeBike) => ({
             bike_id: bike.bike_id,
             lat: bike.lat,
             lon: bike.lon,
+            is_reserved: bike.is_reserved,
+            is_disabled: bike.is_disabled,
             vehicle_type: bike.vehicle_type,
-            current_range_meters: bike.current_range_meters
         }));
 
         return res.json(cleanBikes);
