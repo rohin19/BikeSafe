@@ -67,3 +67,8 @@ export const hazardApi = {
 export const routeApi = {
     list: () => apiRequest('/api/routes'),
 }
+
+export const gbfsApi = {
+    stations: () => apiRequest('/api/gbfs/lime/stations'),
+    freeBikes: () => apiRequest('/api/gbfs/lime/freeBikes'),
+}
