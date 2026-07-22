@@ -1,9 +1,9 @@
 import React from 'react';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import type { MapProps } from '../types';
 
-export default function Map () {
-  // Vancouver coordinates: [latitude, longitude]
+export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
   const vancouverCoords: [number, number] = [49.2827, -123.1207];
 
   return (

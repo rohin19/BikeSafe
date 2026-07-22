@@ -92,7 +92,7 @@ interface CleanVehicleDockAvailable {
     count: number;
 }
 
-interface CleanStation {
+export interface CleanStation {
     station_id: string;
     name: string;
     lat: number;
@@ -103,11 +103,22 @@ interface CleanStation {
     clean_vehicle_docks_available: CleanVehicleDockAvailable[];
 }
 
-interface CleanFreeBikes {
+export interface CleanFreeBikes {
     bike_id: string;
     lat: number;
     lon: number;
     is_reserved: boolean;
     is_disabled: boolean;
     vehicle_type: string;
+}
+
+export interface MapProps {
+    stations: CleanStation[];
+    freeBikes: CleanFreeBikes[];
+    onBoundsChange: (bounds: {
+        north: number;
+        south: number;
+        east: number;
+        west: number;
+    }) => void;
 }
