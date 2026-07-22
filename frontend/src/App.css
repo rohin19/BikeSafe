@@ -145,7 +145,7 @@
   background: var(--mobile-card);
   border: 1px dashed var(--mobile-border);
   border-radius: var(--radius-lg);
-  height: 140px;
+  height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
