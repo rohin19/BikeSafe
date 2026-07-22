@@ -53,7 +53,6 @@ interface RawStationStatus {
     last_reported: number;
 }
 
-// 3. Free Bike Status
 interface RawFreeBike {
     bike_id: string;
     lat: number;
@@ -67,23 +66,34 @@ interface RawFreeBike {
 }
 
 // 4. Vehicle Types
-// interface VehicleType {
-//   vehicle_type_id: string;
-//   form_factor: 'scooter' | 'bicycle' | string;
-//   propulsion_type: 'electric' | 'electric_assist' | 'human' | string;
-//   max_range_meters: number;
-// }
+interface VehicleType {
+  vehicle_type_id: string;
+  form_factor: string;
+  propulsion_type: string;
+  max_range_meters: number;
+}
 
 // cleaned Types
+interface CleanVehicleTypeAvailable {
+    form_factor: string;
+    count: number;
+}
+
+interface CleanVehicleDockAvailable {
+    form_factors: string[];
+    count: number;
+}
+
+
 interface CleanStation {
     station_id: string;
     name: string;
     lat: number;
     lon: number;
     num_vehicles_available: number;
-    vehicle_types_available: VehicleTypeAvailable[];
+    clean_vehicle_types_available: CleanVehicleTypeAvailable[];
     num_docks_available: number;
-    vehicle_docks_available: VehicleDockAvailable[];
+    clean_vehicle_docks_available: CleanVehicleDockAvailable[];
 }
 
 interface CleanFreeBikes {
@@ -100,19 +110,48 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
     try {
         const infoRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_information");
         const statusRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_status");
+        const vehicleTypeRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/vehicle_types");
 
         const infoData = await infoRes.json();
         const statusData = await statusRes.json();
+        const vehicleTypeData = await vehicleTypeRes.json();
 
-        // Index station status by ID for O(1) lookups
         const statusMap = new Map<string, RawStationStatus>();
         statusData.data.stations.forEach((status: RawStationStatus) => {
             statusMap.set(status.station_id, status);
         });
 
-        // Construct the CleanStation array
+        const vehicleTypeMap = new Map<string, string>();
+        vehicleTypeData.data.vehicle_types.forEach((vehicle_type: VehicleType) => {
+            vehicleTypeMap.set(vehicle_type.vehicle_type_id, vehicle_type.form_factor);
+        });
+
         const cleanStations: CleanStation[] = infoData.data.stations.map((info: RawStationInfo): CleanStation => {
             const status = statusMap.get(info.station_id);
+
+            const CleanVehicleTypeAvailables: CleanVehicleTypeAvailable[] = status ? status.vehicle_types_available.map((
+                vehicle_type_available: VehicleTypeAvailable): CleanVehicleTypeAvailable => {
+                    
+                    return {
+                        form_factor: vehicleTypeMap.get(vehicle_type_available.vehicle_type_id) ?? "Unknown",
+                        count: vehicle_type_available.count,
+                    }
+
+                }
+            ) : [];
+
+            const CleanVehicleDockAvailables: CleanVehicleDockAvailable[] = status ? status.vehicle_docks_available.map((
+                vehicle_dock_available: VehicleDockAvailable): CleanVehicleDockAvailable => {
+                    const formFactors: string[] = vehicle_dock_available.vehicle_type_ids.map((id) => 
+                        vehicleTypeMap.get(id) ?? "Unknown"
+                    );
+
+                    return {
+                        form_factors: formFactors,
+                        count: vehicle_dock_available.count
+                    }
+                }
+            ) : [];
             
             return {
                 station_id: info.station_id,
@@ -120,13 +159,12 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
                 lat: info.lat,
                 lon: info.lon,
                 num_vehicles_available: status ? status.num_vehicles_available : 0,
-                vehicle_types_available: status ? status.vehicle_types_available : [],
+                clean_vehicle_types_available: CleanVehicleTypeAvailables,
                 num_docks_available: status ? status.num_docks_available : 0,
-                vehicle_docks_available: status ? status.vehicle_docks_available: []
+                clean_vehicle_docks_available: CleanVehicleDockAvailables,
             };
         });
 
-        // Return the clean array
         return res.status(200).json(cleanStations);
 
     } catch (error) {

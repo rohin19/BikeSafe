@@ -81,3 +81,33 @@ export interface ProfilePageProps {
       user: User
       onUserChange: (user: User | null) => void
   }
+
+interface CleanVehicleTypeAvailable {
+    form_factor: string;
+    count: number;
+}
+
+interface CleanVehicleDockAvailable {
+    form_factors: string[];
+    count: number;
+}
+
+interface CleanStation {
+    station_id: string;
+    name: string;
+    lat: number;
+    lon: number;
+    num_vehicles_available: number;
+    clean_vehicle_types_available: CleanVehicleTypeAvailable[];
+    num_docks_available: number;
+    clean_vehicle_docks_available: CleanVehicleDockAvailable[];
+}
+
+interface CleanFreeBikes {
+    bike_id: string;
+    lat: number;
+    lon: number;
+    is_reserved: boolean;
+    is_disabled: boolean;
+    vehicle_type: string;
+}
