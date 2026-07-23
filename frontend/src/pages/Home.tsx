@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { hazardApi } from '../services/api'
 import type { User, Hazard, HazardStats } from '../types'
+import Map from '../components/Map'
 
 export default function Home({ user }: {user: User}) {
   const [hazards, setHazards] = useState<Hazard[]>([])
@@ -37,7 +38,10 @@ export default function Home({ user }: {user: User}) {
         <h1>{user.name}</h1>
       </div>
 
-      <div className="map-placeholder">map · nearby hazards</div>
+      <h2>map · nearby hazards</h2>
+      <div className="map-placeholder">
+        <Map harzards={hazards}></Map>
+      </div>
 
       <Link to="/hazards/new" className="button primary">
       + Report a hazard

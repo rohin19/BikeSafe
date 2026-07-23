@@ -81,3 +81,53 @@ export interface ProfilePageProps {
       user: User
       onUserChange: (user: User | null) => void
   }
+
+export interface CleanStation {
+    station_id: string;
+    name: string;
+    lat: number;
+    lon: number;
+    num_vehicles_available: number;
+    vehicle_type_available: string;
+    num_docks_available: number;
+}
+
+export interface CleanFreeBike {
+    bike_id: string;
+    lat: number;
+    lon: number;
+    is_reserved: boolean;
+    is_disabled: boolean;
+    vehicle_type: string;
+}
+
+export interface StationPopupProps {
+    station: CleanStation
+}
+
+export interface FreeBikesPopupProps {
+    freeBike: CleanFreeBike
+}
+
+export interface hazardPopupProps {
+    hazard: Hazard
+}
+
+export interface Bounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
+export interface MapProps {
+    stations?: CleanStation[];
+    freeBikes?: CleanFreeBike[];
+    onBoundsChange?: (bounds: {
+        north: number;
+        south: number;
+        east: number;
+        west: number;
+    }) => void;
+    harzards?: Hazard[];
+}
