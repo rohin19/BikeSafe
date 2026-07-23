@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import 'leaflet/dist/leaflet.css';
 import type { MapProps } from '../types';
+import { renderToStaticMarkup } from "react-dom/server";
+import StationPopup from "./StationPopup";
+import FreeBikePopup from "./FreeBikePopup";
 
 export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
@@ -64,37 +67,46 @@ export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
     markersLayer.clearLayers();
 
     const stationsIcon = L.divIcon({
-      className: "station-marker",
-      html: `<div class="w-4 h-4 bg-[#0000ff] border-2 border-black"></div>`,
-      iconSize: [16, 16],
+      className: "clean-map-icon",
+      html: `
+        <div class="marker-dot station">
+          <div class="inner-dot"></div>
+        </div>
+      `,
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
+      popupAnchor: [0, -10],
     });
 
     const freeBikesIcon = L.divIcon({
-      className: "freeBikes-marker",
-      html: `<div class="w-4 h-4 bg-[#0000ff] border-2 border-white"></div>`,
-      iconSize: [16, 16],
+      className: "clean-map-icon",
+      html: `
+        <div class="marker-dot bike"></div>
+      `,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+      popupAnchor: [0, -7],
     });
 
     stations.forEach((station) => {
-      const popupContent = `
-        <div>
-          <h3 class="text-[12px] font-bold border-b border-black pb-1">
-            ${station.name}
-          </h3>
-          <p>Number of vehicles available: ${station.num_vehicles_available}</p>
-          <p>vehicles type: ${station.vehicle_type_available}</p>
-          <p>Number of docks available: ${station.num_docks_available}</p>
-        </div>
-      `;
+      const popupHtml = renderToStaticMarkup(<StationPopup station={station} />);
 
       const marker = L.marker([station.lat, station.lon], { icon: stationsIcon })
-        .bindPopup(popupContent, { autoPan: false })
+        .bindPopup(popupHtml, { autoPan: false })
         .addTo(markersLayer);
 
+    });
+
+    freeBikes.forEach((freeBike) => {
+      const popupHtml = renderToStaticMarkup(<FreeBikePopup freeBike={freeBike} />);
+
+      const marker = L.marker([freeBike.lat, freeBike.lon], { icon: freeBikesIcon })
+        .bindPopup(popupHtml, { autoPan: false })
+        .addTo(markersLayer);
     });
   }, [stations, freeBikes]);
 
   return (
-    <div ref={mapRef}></div>
+    <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
   );
 };

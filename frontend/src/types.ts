@@ -82,7 +82,6 @@ export interface ProfilePageProps {
       onUserChange: (user: User | null) => void
   }
 
-
 export interface CleanStation {
     station_id: string;
     name: string;
@@ -93,7 +92,7 @@ export interface CleanStation {
     num_docks_available: number;
 }
 
-export interface CleanFreeBikes {
+export interface CleanFreeBike {
     bike_id: string;
     lat: number;
     lon: number;
@@ -102,9 +101,24 @@ export interface CleanFreeBikes {
     vehicle_type: string;
 }
 
+export interface StationPopupProps {
+    station: CleanStation
+}
+
+export interface FreeBikesPopupProps {
+    freeBike: CleanFreeBike
+}
+
+export interface Bounds {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
+}
+
 export interface MapProps {
     stations: CleanStation[];
-    freeBikes: CleanFreeBikes[];
+    freeBikes: CleanFreeBike[];
     onBoundsChange: (bounds: {
         north: number;
         south: number;

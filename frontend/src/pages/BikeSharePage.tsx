@@ -1,23 +1,20 @@
 import { useEffect, useState } from "react";
 import Map from "../components/Map";
-import type { CleanStation, CleanFreeBikes } from '../types'
+import type { CleanStation, CleanFreeBike, Bounds } from '../types'
 import { gbfsApi } from "../services/api";
 
 
 export default function BikeSharePage() {
     const [stations, setStations] = useState<CleanStation[]>([]);
-    const [freeBikes, setFreeBikes] = useState<CleanFreeBikes[]>([]);
+    const [freeBikes, setFreeBikes] = useState<CleanFreeBike[]>([]);
     const [loading, setloading] = useState<boolean>(false);
     const [error, setError] = useState('');
-    const [bounds, setBounds] = useState<{
-        north: number;
-        south: number;
-        east: number;
-        west: number;
-    } | null>(null);
+    const [bounds, setBounds] = useState<Bounds | null>(null);
     
     useEffect(() => {
         if (!bounds) return;
+
+        const currentBounds = bounds;
 
         const timeout = setTimeout(() => {
             fetchGBFS();
@@ -28,25 +25,33 @@ export default function BikeSharePage() {
         async function fetchGBFS () {
             try{
                 setloading(true);
-                const fetchedStations = await gbfsApi.stations();
-                const fetchedFreeBikes = await gbfsApi.freeBikes();
+                const Params = new URLSearchParams({
+                    north: currentBounds.north.toString(),
+                    south: currentBounds.south.toString(),
+                    east: currentBounds.east.toString(),
+                    west: currentBounds.west.toString()
+                });
+                
+                const fetchedStations = await gbfsApi.stations(Params.toString());
+                const fetchedFreeBikes = await gbfsApi.freeBikes(Params.toString());
                 setStations(fetchedStations);
                 setFreeBikes(fetchedFreeBikes);
+                console.log(fetchedStations);
+                console.log(fetchedFreeBikes);
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Something went wrong');
             } finally {
                 setloading(false);
             }
         }
-    })
-
-    if (loading) return <div className="page">Loading...</div>
-    if (error) return <div className="page">{error}</div>
+    }, [bounds]);
 
     return (
         <div className="page">
             <h1>BikeShare</h1>
+            {error && <div className="page">{error}</div>}
             <div className="map-placeholder">
+                {loading && <div className="page">Loading map data...</div>}
                 <Map stations={stations} freeBikes={freeBikes} onBoundsChange={setBounds}/>
             </div>
         </div>

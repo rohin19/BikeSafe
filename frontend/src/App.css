@@ -230,3 +230,49 @@
 .page textarea {
   resize: vertical;
 }
+
+/* ============================================================
+   Map markers
+   ============================================================ */
+
+.clean-map-icon {
+  background: none !important;
+  border: none !important;
+}
+
+/* Base dot style */
+.marker-dot {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  transition: transform 0.15s ease-in-out;
+}
+
+/* Hover scale effect */
+.marker-dot:hover {
+  transform: scale(1.25);
+}
+
+/* Station Marker (Dark Navy Blue with inner dot) */
+.marker-dot.station {
+  background-color: #1e293b; /* Slate 800 */
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-dot.station .inner-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #38bdf8; /* Sky Blue */
+  border-radius: 50%;
+}
+
+/* Free Bike Marker (Solid Green) */
+.marker-dot.bike {
+  background-color: #10b981; /* Emerald Green */
+  border: 2px solid #ffffff;
+}

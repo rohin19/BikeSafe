@@ -84,7 +84,7 @@ interface CleanStation {
     num_docks_available: number;
 }
 
-interface CleanFreeBikes {
+interface CleanFreeBike {
     bike_id: string;
     lat: number;
     lon: number;
@@ -96,6 +96,15 @@ interface CleanFreeBikes {
 // --- 1. STATIONS ENDPOINT (Info + Status joined) ---
 gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
     try {
+        const north = parseFloat(req.query.north as string);
+        const south = parseFloat(req.query.south as string);
+        const east = parseFloat(req.query.east as string);
+        const west = parseFloat(req.query.west as string);
+
+        if (isNaN(north) || isNaN(south) || isNaN(west) || isNaN(east)) {
+            return res.status(400).json({ error: "Invalid bounding box parameters"});
+        }
+
         const infoRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_information");
         const statusRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_status");
         const vehicleTypeRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/vehicle_types");
@@ -104,17 +113,28 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
         const statusData = await statusRes.json();
         const vehicleTypeData = await vehicleTypeRes.json();
 
+        const stationsInfo: RawStationInfo[] = infoData.data.stations;
+        const stationsStatus: RawStationStatus[] = statusData.data.stations;
+        const vehicleTypes: VehicleType[] = vehicleTypeData.data.vehicle_types;
+
+        const filteredStationsInfo = stationsInfo.filter((Info) => 
+            Info.lat >= south &&
+            Info.lat <= north &&
+            Info.lon >= west &&
+            Info.lon <= east
+        ) 
+        
         const statusMap = new Map<string, RawStationStatus>();
-        statusData.data.stations.forEach((status: RawStationStatus) => {
+        stationsStatus.forEach((status: RawStationStatus) => {
             statusMap.set(status.station_id, status);
         });
 
         const vehicleTypeMap = new Map<string, string>();
-        vehicleTypeData.data.vehicle_types.forEach((vehicle_type: VehicleType) => {
+        vehicleTypes.forEach((vehicle_type: VehicleType) => {
             vehicleTypeMap.set(vehicle_type.vehicle_type_id, vehicle_type.form_factor);
         });
 
-        const cleanStations: CleanStation[] = infoData.data.stations.map((info: RawStationInfo): CleanStation => {
+        const cleanStations: CleanStation[] = filteredStationsInfo.map((info: RawStationInfo): CleanStation => {
             const status = statusMap.get(info.station_id);
 
             let vehicle_type = "Unknown";
@@ -143,10 +163,27 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
 // --- 2. VEHICLES ENDPOINT (Free floating bikes/scooters) ---
 gbfsRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
     try {
+        const north = parseFloat(req.query.north as string);
+        const south = parseFloat(req.query.south as string);
+        const east = parseFloat(req.query.east as string);
+        const west = parseFloat(req.query.west as string);
+
+        if (isNaN(north) || isNaN(south) || isNaN(west) || isNaN(east)) {
+            return res.status(400).json({ error: "Invalid bounding box parameters"});
+        }
+
         const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
         const freeBikesData = await freeBikesRes.json();
 
-        const cleanBikes: CleanFreeBikes[] = freeBikesData.data.bikes.map((bike: RawFreeBike) => ({
+        const freeBikes: RawFreeBike[] = freeBikesData.data.bikes;
+        const filteredfreeBikes = freeBikes.filter((freeBike) => 
+            freeBike.lat >= south &&
+            freeBike.lat <= north &&
+            freeBike.lon >= west &&
+            freeBike.lon <= east
+        ) 
+
+        const cleanBikes: CleanFreeBike[] = filteredfreeBikes.map((bike: RawFreeBike) => ({
             bike_id: bike.bike_id,
             lat: bike.lat,
             lon: bike.lon,
