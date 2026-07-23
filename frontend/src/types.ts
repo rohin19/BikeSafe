@@ -82,15 +82,6 @@ export interface ProfilePageProps {
       onUserChange: (user: User | null) => void
   }
 
-interface CleanVehicleTypeAvailable {
-    form_factor: string;
-    count: number;
-}
-
-interface CleanVehicleDockAvailable {
-    form_factors: string[];
-    count: number;
-}
 
 export interface CleanStation {
     station_id: string;
@@ -98,9 +89,8 @@ export interface CleanStation {
     lat: number;
     lon: number;
     num_vehicles_available: number;
-    clean_vehicle_types_available: CleanVehicleTypeAvailable[];
+    vehicle_type_available: string;
     num_docks_available: number;
-    clean_vehicle_docks_available: CleanVehicleDockAvailable[];
 }
 
 export interface CleanFreeBikes {

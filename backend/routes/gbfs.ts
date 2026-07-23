@@ -74,26 +74,14 @@ interface VehicleType {
 }
 
 // cleaned Types
-interface CleanVehicleTypeAvailable {
-    form_factor: string;
-    count: number;
-}
-
-interface CleanVehicleDockAvailable {
-    form_factors: string[];
-    count: number;
-}
-
-
 interface CleanStation {
     station_id: string;
     name: string;
     lat: number;
     lon: number;
     num_vehicles_available: number;
-    clean_vehicle_types_available: CleanVehicleTypeAvailable[];
+    vehicle_type_available: string;
     num_docks_available: number;
-    clean_vehicle_docks_available: CleanVehicleDockAvailable[];
 }
 
 interface CleanFreeBikes {
@@ -129,29 +117,10 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
         const cleanStations: CleanStation[] = infoData.data.stations.map((info: RawStationInfo): CleanStation => {
             const status = statusMap.get(info.station_id);
 
-            const CleanVehicleTypeAvailables: CleanVehicleTypeAvailable[] = status ? status.vehicle_types_available.map((
-                vehicle_type_available: VehicleTypeAvailable): CleanVehicleTypeAvailable => {
-                    
-                    return {
-                        form_factor: vehicleTypeMap.get(vehicle_type_available.vehicle_type_id) ?? "Unknown",
-                        count: vehicle_type_available.count,
-                    }
-
-                }
-            ) : [];
-
-            const CleanVehicleDockAvailables: CleanVehicleDockAvailable[] = status ? status.vehicle_docks_available.map((
-                vehicle_dock_available: VehicleDockAvailable): CleanVehicleDockAvailable => {
-                    const formFactors: string[] = vehicle_dock_available.vehicle_type_ids.map((id) => 
-                        vehicleTypeMap.get(id) ?? "Unknown"
-                    );
-
-                    return {
-                        form_factors: formFactors,
-                        count: vehicle_dock_available.count
-                    }
-                }
-            ) : [];
+            let vehicle_type = "Unknown";
+            if (status && status.vehicle_types_available.length > 0) {
+                vehicle_type = vehicleTypeMap.get(status.vehicle_types_available[0].vehicle_type_id) ?? "Unknown";
+            }
             
             return {
                 station_id: info.station_id,
@@ -159,9 +128,8 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
                 lat: info.lat,
                 lon: info.lon,
                 num_vehicles_available: status ? status.num_vehicles_available : 0,
-                clean_vehicle_types_available: CleanVehicleTypeAvailables,
+                vehicle_type_available: vehicle_type,
                 num_docks_available: status ? status.num_docks_available : 0,
-                clean_vehicle_docks_available: CleanVehicleDockAvailables,
             };
         });
 
