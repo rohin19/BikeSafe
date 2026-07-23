@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
+import type { RawStationInfo, RawStationStatus, RawFreeBike, VehicleType, CleanStation, CleanFreeBike  } from '../types/bikeShareTypes';
 
-const gbfsRouter = Router();
+const bikeShareRouter = Router();
 
 
 // auto discovery link Lime Vancouver: https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/gbfs.json
@@ -12,89 +13,11 @@ const gbfsRouter = Router();
 // {"name":"free_bike_status","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status"},
 // {"name":"vehicle_types","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/vehicle_types"}]}}}
 
-// auto discovery link Mobi Bike Share Vancouver: https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/gbfs.json
 
-// {"last_updated":1783796719,"ttl":60,"version":"2.2","data":{"en":{"feeds":
-// [{"name":"gbfs","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/gbfs.json"},
-// {"name":"system_information","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/system_information.json"},
-// {"name":"station_status","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/station_status.json"},
-// {"name":"station_information","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/station_information.json"},
-// {"name":"vehicle_types","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/vehicle_types.json"},
-// {"name":"free_bike_status","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/free_bike_status.json"},
-// {"name":"system_pricing_plans","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/system_pricing_plans.json"},
-// {"name":"geofencing_zones","url":"https://gbfs.kappa.fifteen.eu/gbfs/2.2/mobi/en/geofencing_zones.json"}]}}}
 
-interface RawStationInfo {
-    station_id: string;
-    name: string;
-    lat: number;
-    lon: number;
-}
-
-interface VehicleTypeAvailable {
-    vehicle_type_id: string;
-    count: number;
-}
-
-interface VehicleDockAvailable {
-    vehicle_type_ids: string[];
-    count: number;
-}
-
-interface RawStationStatus {
-    station_id: string;
-    num_vehicles_available: number;
-    vehicle_types_available: VehicleTypeAvailable[];
-    num_docks_available: number;
-    vehicle_docks_available: VehicleDockAvailable[];
-    is_installed: boolean;
-    is_renting: boolean;
-    is_returning: boolean;
-    last_reported: number;
-}
-
-interface RawFreeBike {
-    bike_id: string;
-    lat: number;
-    lon: number;
-    is_reserved: boolean;
-    is_disabled: boolean;
-    current_range_meters: number;
-    vehicle_type_id: string;
-    vehicle_type: string;
-    last_reported: number;
-}
-
-// 4. Vehicle Types
-interface VehicleType {
-  vehicle_type_id: string;
-  form_factor: string;
-  propulsion_type: string;
-  max_range_meters: number;
-}
-
-// cleaned Types
-interface CleanStation {
-    station_id: string;
-    name: string;
-    lat: number;
-    lon: number;
-    num_vehicles_available: number;
-    vehicle_type_available: string;
-    num_docks_available: number;
-}
-
-interface CleanFreeBike {
-    bike_id: string;
-    lat: number;
-    lon: number;
-    is_reserved: boolean;
-    is_disabled: boolean;
-    vehicle_type: string;
-}
 
 // --- 1. STATIONS ENDPOINT (Info + Status joined) ---
-gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
+bikeShareRouter.get('/lime/stations', async (req: Request, res: Response) => {
     try {
         const north = parseFloat(req.query.north as string);
         const south = parseFloat(req.query.south as string);
@@ -161,7 +84,7 @@ gbfsRouter.get('/lime/stations', async (req: Request, res: Response) => {
 });
 
 // --- 2. VEHICLES ENDPOINT (Free floating bikes/scooters) ---
-gbfsRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
+bikeShareRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
     try {
         const north = parseFloat(req.query.north as string);
         const south = parseFloat(req.query.south as string);
@@ -199,4 +122,4 @@ gbfsRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
     }
 });
 
-export default gbfsRouter;
+export default bikeShareRouter;

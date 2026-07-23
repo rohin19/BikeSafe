@@ -4,7 +4,7 @@ import cors from 'cors';
 import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import hazardsRouter from './routes/hazards';
-import gbfsRouter from './routes/gbfs';
+import bikeShareRouter from './routes/bikeShare';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
 
@@ -24,7 +24,7 @@ app.use(cors({
 app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
-app.use('/api/gbfs', gbfsRouter); 
+app.use('/api/bikeShare', bikeShareRouter); 
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 

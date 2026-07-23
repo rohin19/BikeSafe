@@ -69,6 +69,6 @@ export const routeApi = {
 }
 
 export const gbfsApi = {
-    stations: (queryParams: string) => apiRequest(`/api/gbfs/lime/stations?${queryParams}`),
-    freeBikes: (queryParams: string) => apiRequest(`/api/gbfs/lime/freeBikes?${queryParams}`),
+    stations: (queryParams: string) => apiRequest(`/api/bikeShare/lime/stations?${queryParams}`),
+    freeBikes: (queryParams: string) => apiRequest(`/api/bikeShare/lime/freeBikes?${queryParams}`),
 }
