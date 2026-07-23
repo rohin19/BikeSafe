@@ -51,9 +51,9 @@ export default function BikeSharePage() {
             <h1>BikeShare</h1>
             {error && <div className="page">{error}</div>}
             <div className="map-placeholder">
-                {loading && <div className="page">Loading map data...</div>}
                 <Map stations={stations} freeBikes={freeBikes} onBoundsChange={setBounds}/>
             </div>
+            {loading && <div className="page">Loading map data...</div>}
         </div>
     )
 }

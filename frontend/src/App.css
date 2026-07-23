@@ -173,6 +173,7 @@
   background: var(--mobile-card);
   border-top: 1px solid var(--mobile-border);
   padding: 8px 0;
+  z-index: 1000;
 }
 
 .nav-item {
