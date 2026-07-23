@@ -68,7 +68,7 @@ export const routeApi = {
     list: () => apiRequest('/api/routes'),
 }
 
-export const gbfsApi = {
+export const bikeShareApi = {
     stations: (queryParams: string) => apiRequest(`/api/bikeShare/lime/stations?${queryParams}`),
     freeBikes: (queryParams: string) => apiRequest(`/api/bikeShare/lime/freeBikes?${queryParams}`),
 }

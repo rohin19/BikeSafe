@@ -5,15 +5,14 @@ import type { MapProps } from '../types';
 import { renderToStaticMarkup } from "react-dom/server";
 import StationPopup from "./StationPopup";
 import FreeBikePopup from "./FreeBikePopup";
+import HazardPopup from "./HazardPopup";
 
-export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
+export default function Map ({
+  stations = [], freeBikes = [], harzards = [], onBoundsChange}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
-  const onBoundsChangeRef = useRef(onBoundsChange);
-  useEffect(() => {
-    onBoundsChangeRef.current = onBoundsChange;
-  }, [onBoundsChange]);
+
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -39,14 +38,12 @@ export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
 
     function updateBounds() {
       const bounds = map.getBounds();
-      if (onBoundsChangeRef.current) {
-        onBoundsChangeRef.current({
+      onBoundsChange?.({
           north: bounds.getNorth(),
           south: bounds.getSouth(),
           east: bounds.getEast(),
           west: bounds.getWest(),
         });
-      }
     }
 
     updateBounds();
@@ -88,6 +85,18 @@ export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
       popupAnchor: [0, -7],
     });
 
+    const hazardIcon = L.divIcon({
+      className: "clean-map-icon",
+      html: `
+        <div class="marker-triangle">
+          <div class="hazard-content">!</div>
+        </div>
+      `,
+      iconSize: [24, 20],
+      iconAnchor: [12, 10],
+      popupAnchor: [0, -10],
+    });
+
     stations.forEach((station) => {
       const popupHtml = renderToStaticMarkup(<StationPopup station={station} />);
 
@@ -104,7 +113,16 @@ export default function Map ({stations, freeBikes, onBoundsChange}: MapProps) {
         .bindPopup(popupHtml, { autoPan: false })
         .addTo(markersLayer);
     });
-  }, [stations, freeBikes]);
+
+    harzards.forEach((hazard) => {
+      const popupHtml = renderToStaticMarkup(<HazardPopup hazard={hazard} />);
+
+      const marker = L.marker([hazard.latitude, hazard.longitude], { icon: hazardIcon })
+        .bindPopup(popupHtml, { autoPan: false })
+        .addTo(markersLayer);
+    });
+
+  }, [stations, freeBikes, harzards]);
 
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>

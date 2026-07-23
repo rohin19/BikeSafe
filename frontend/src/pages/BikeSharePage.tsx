@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Map from "../components/Map";
 import type { CleanStation, CleanFreeBike, Bounds } from '../types'
-import { gbfsApi } from "../services/api";
+import { bikeShareApi } from "../services/api";
 
 
 export default function BikeSharePage() {
@@ -17,12 +17,12 @@ export default function BikeSharePage() {
         const currentBounds = bounds;
 
         const timeout = setTimeout(() => {
-            fetchGBFS();
+            fetchBikeShare();
         }, 300);
 
         return () => clearTimeout(timeout);
 
-        async function fetchGBFS () {
+        async function fetchBikeShare () {
             try{
                 setloading(true);
                 const Params = new URLSearchParams({
@@ -32,8 +32,8 @@ export default function BikeSharePage() {
                     west: currentBounds.west.toString()
                 });
                 
-                const fetchedStations = await gbfsApi.stations(Params.toString());
-                const fetchedFreeBikes = await gbfsApi.freeBikes(Params.toString());
+                const fetchedStations = await bikeShareApi.stations(Params.toString());
+                const fetchedFreeBikes = await bikeShareApi.freeBikes(Params.toString());
                 setStations(fetchedStations);
                 setFreeBikes(fetchedFreeBikes);
                 console.log(fetchedStations);
@@ -48,7 +48,7 @@ export default function BikeSharePage() {
 
     return (
         <div className="page">
-            <h1>BikeShare</h1>
+            <h1>Lime Vancouver</h1>
             {error && <div className="page">{error}</div>}
             <div className="map-placeholder">
                 <Map stations={stations} freeBikes={freeBikes} onBoundsChange={setBounds}/>

@@ -109,6 +109,10 @@ export interface FreeBikesPopupProps {
     freeBike: CleanFreeBike
 }
 
+export interface hazardPopupProps {
+    hazard: Hazard
+}
+
 export interface Bounds {
   north: number;
   south: number;
@@ -117,12 +121,13 @@ export interface Bounds {
 }
 
 export interface MapProps {
-    stations: CleanStation[];
-    freeBikes: CleanFreeBike[];
-    onBoundsChange: (bounds: {
+    stations?: CleanStation[];
+    freeBikes?: CleanFreeBike[];
+    onBoundsChange?: (bounds: {
         north: number;
         south: number;
         east: number;
         west: number;
     }) => void;
+    harzards?: Hazard[];
 }
