@@ -1,18 +1,18 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import 'leaflet/dist/leaflet.css';
-import type { MapProps } from '../types';
+import type { MapProps, RouteDisplay } from '../types';
 import { renderToStaticMarkup } from "react-dom/server";
 import StationPopup from "./StationPopup";
 import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], hazards = [], onBoundsChange}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
-
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -32,9 +32,11 @@ export default function Map ({
     ).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
+    const routeLayer = L.layerGroup().addTo(map); 
 
     leafletMapRef.current = map;
     markersLayerRef.current = markersLayer;
+    routeLayerRef.current = routeLayer;
 
     function updateBounds() {
       const bounds = map.getBounds();
@@ -44,6 +46,10 @@ export default function Map ({
           east: bounds.getEast(),
           west: bounds.getWest(),
         });
+    }
+
+    function handleClick(e: L.LeafletMouseEvent) {
+      onMapClick?.(e.latlng.lat, e.latlng.lng);
     }
 
     updateBounds();
