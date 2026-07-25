@@ -23,6 +23,11 @@ routesRouter.get("/:id", async (req: Request, res: Response) => {
       "SELECT * FROM routes WHERE route_id = $1",
       [routeID],
     );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({ error: 'Route not found' });
+    }
+    
     return res.status(200).json(result.rows);
   } catch (e) {
     console.error(`Error fetching routes: ${e}`);
@@ -50,7 +55,7 @@ routesRouter.post('/', async(req:Request, res: Response) => {
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING *
             `,
-            [start_name, start_latitude, start_longitude, destination_name, destination_latitude, destination_longitude, elevation, distance, duration, safety_score, created_by]
+            [start_name, start_latitude, start_longitude, destination_name, destination_latitude, destination_longitude, elevation, distance, duration, safety_score, createdBy]
         );
         // the RETURNING * gives us the entire row we just inserted
         

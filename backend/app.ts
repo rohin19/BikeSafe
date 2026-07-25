@@ -7,6 +7,7 @@ import hazardsRouter from './routes/hazards';
 import bikeShareRouter from './routes/bikeShare';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
+import routesRouter from './routes/routes';
 
 // create express app
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/bikeShare', bikeShareRouter); 
+app.use('/api/routes', routesRouter);
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 
