@@ -8,7 +8,7 @@ import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], harzards = [], onBoundsChange}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -114,7 +114,7 @@ export default function Map ({
         .addTo(markersLayer);
     });
 
-    harzards.forEach((hazard) => {
+    hazards.forEach((hazard) => {
       const popupHtml = renderToStaticMarkup(<HazardPopup hazard={hazard} />);
 
       const marker = L.marker([hazard.latitude, hazard.longitude], { icon: hazardIcon })
@@ -122,7 +122,7 @@ export default function Map ({
         .addTo(markersLayer);
     });
 
-  }, [stations, freeBikes, harzards]);
+  }, [stations, freeBikes, hazards]);
 
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>

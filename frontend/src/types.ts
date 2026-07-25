@@ -129,5 +129,6 @@ export interface MapProps {
         east: number;
         west: number;
     }) => void;
-    harzards?: Hazard[];
+    hazards?: Hazard[];
 }
+
