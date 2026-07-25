@@ -135,7 +135,7 @@ export default function Map ({
 
   useEffect(() => {
     // draws route markers
-    const routeLayer = routeLayerRef.current;
+    const routeLayer = routeLayerRef.current; // this layer for routes and start/end markers
     if (!routeLayer) return;
     
     routeLayer.clearLayers();
