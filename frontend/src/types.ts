@@ -123,6 +123,7 @@ export interface Bounds {
 export interface RoutePoint {
     lat: number;
     lon: number;
+    label: string;
 }
 
 export interface RouteDisplay {

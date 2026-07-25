@@ -54,12 +54,15 @@ export default function Map ({
 
     updateBounds();
     map.on("moveend", updateBounds);
+    map.on("click", handleClick);
 
     return () => {
       map.off("moveend", updateBounds);
+      map.off("click", handleClick);
       map.remove();
       leafletMapRef.current = null;
       markersLayerRef.current = null;
+      routeLayerRef.current = null;
     };
   }, []);
 
@@ -129,6 +132,28 @@ export default function Map ({
     });
 
   }, [stations, freeBikes, hazards]);
+
+  useEffect(() => {
+    // draws route markers
+    const routeLayer = routeLayerRef.current;
+    if (!routeLayer) return;
+    
+    routeLayer.clearLayers();
+    if (!route) return;
+
+    L.marker([route.start.lat, route.start.lon])
+      .bindPopup(route.start.label)
+      .addTo(routeLayer)
+
+    L.marker([route.destination.lat, route.destination.lon])
+      .bindPopup(route.destination.label)
+      .addTo(routeLayer)
+
+    L.polyline(
+      route.path.map((p) => [p.lat, p.lon] as [number, number]),
+      { color: "blue", weight: 4 }
+    ).addTo(routeLayer);
+  }, [route]);
 
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
