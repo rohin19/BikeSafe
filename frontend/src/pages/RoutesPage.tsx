@@ -7,11 +7,12 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<RoutePoint[]>([]);
   const [searching, setSearching] = useState<boolean>(false);
+  const [saved, setSaved] = useState(false);
 
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
-  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number } | null >(null);
+  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number } | null >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -38,6 +39,31 @@ export default function RoutesPage({ user }: {user: User | null}) {
       selectPoint(point);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to resolve address');
+    }
+  }
+
+  // saves route on display
+  async function handleSave() {
+    if (!start || !destination || !directions || !user) return;
+
+    try {
+      setError('');
+      await routeApi.create({
+        start_name: start.label,
+        start_latitude: start.lat,
+        start_longitude: start.lon,
+        destination_name: destination.label,
+        destination_latitude: destination.lat,
+        destination_longitude: destination.lon,
+        elevation: 0, // hardcoded for now, to be implemented
+        distance: directions.distance,
+        duration: directions.duration,
+        safety_score: directions.safetyScore,
+        created_by: user.user_id,
+      });
+      setSaved(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to save route');
     }
   }
 
@@ -130,6 +156,17 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <p><strong>Start: {start ? `(${start.label})` : <span className="text-muted">Not set</span>}</strong></p>
         <p><strong>Destination: {destination ? `(${destination.label})` : <span className="text-muted">Not set</span>}</strong></p>
       </div>
+      {directions && (
+        <>
+          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Safety Score: {directions.safetyScore}/100</p>
+          <button
+            type="button"
+            className="button primary"
+            onClick={handleSave}
+            disabled={!user || saved}
+          >{saved ? 'Saved!' : 'Save Route'}</button>
+        </>
+      )}
 
       {error && <div className="page">{error}</div>}
       {loading && <div className="page">Loading...</div>}
