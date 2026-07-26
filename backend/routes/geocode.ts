@@ -1,12 +1,8 @@
 import { Router, Request, Response } from 'express';
-import routesRouter from './routes';
+import { ORSFeature } from '../types/orsTypes';
+
 
 // OpenRouteService API ~ ORS
-
-interface ORSFeature {
-    geometry: {coordinates: [number, number] }; //[lon, lat] - GeoJSON order
-    properties: { label: string };
-}
 
 const geocodeRouter = Router();
 

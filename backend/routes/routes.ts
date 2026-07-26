@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db';
+import { ORSDirectionsFeature } from '../types/orsTypes';
 
 const routesRouter = Router();
 
@@ -96,9 +97,9 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
         });
 
         const orsData = await orsRes.json();
-        const feature = orsData.features[0];
+        const feature = orsData.features[0] as ORSDirectionsFeature;
 
-        const path = (feature.geometry.coordinates as [number, number][]).map(([lon, lat]) => ({ lat, lon }));
+        const path = (feature.geometry.coordinates).map(([lon, lat]) => ({ lat, lon }));
 
         return res.status(200).json({
             path, // an array of {lat, lon} objects representing the path
