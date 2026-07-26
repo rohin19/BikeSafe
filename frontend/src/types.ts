@@ -149,3 +149,5 @@ export interface MapProps {
     onMapClick?: (lat:number, lon:number) => void;
 }
 
+export type PickingMode = 'start' | 'destination';
+

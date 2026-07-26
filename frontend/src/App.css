@@ -299,3 +299,16 @@
   font-weight: 800;
   line-height: 1;
 }
+
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.mode-toggle .button {
+  flex: 1;
+  width: auto;
+  white-space: nowrap;
+}
