@@ -1,0 +1,38 @@
+### Login as admin first
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@example.com",
+  "password": "iamadmin"
+}
+
+###
+
+### Get all users
+GET http://localhost:3001/api/admin/users
+
+###
+
+### Promote a user to admin (replace 2 with a real user_id from the list above)
+PATCH http://localhost:3001/api/admin/users/2/role
+Content-Type: application/json
+
+{
+  "role": "admin"
+}
+
+###
+
+### Demote back to user
+PATCH http://localhost:3001/api/admin/users/2/role
+Content-Type: application/json
+
+{
+  "role": "user"
+}
+
+###
+
+### Delete a user (replace 2 with a real user_id - careful on shared db)
+DELETE http://localhost:3001/api/admin/users/2
