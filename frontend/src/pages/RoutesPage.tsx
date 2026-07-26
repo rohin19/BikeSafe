@@ -15,6 +15,7 @@ export default function RoutesPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
     if (pickingMode === 'start') {
       setStart(point);
@@ -23,6 +24,7 @@ export default function RoutesPage() {
     }
   }
 
+  // reverse geocodes a map click into a labeled point, then --> selectPoint
   async function handleMapClick(lat: number, lon: number) {
     try {
       setError('');
@@ -39,6 +41,7 @@ export default function RoutesPage() {
     }
   }
 
+  // fetches the ORS road route once both start and dest are set
   useEffect(() => {
     if (!start || !destination) return;
     const currentStart = start;
@@ -60,6 +63,7 @@ export default function RoutesPage() {
     fetchDirections();
   }, [start, destination]);
 
+  // debounced forward-geocode search as user types
   useEffect(() => {
     if (!query.trim()) {
       setSearchResults([]);
