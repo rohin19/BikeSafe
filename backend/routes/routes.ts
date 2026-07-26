@@ -67,7 +67,55 @@ routesRouter.post('/', async(req:Request, res: Response) => {
     }
 }); 
 
-// POST /api/routes/directions - compute a cycling route (path, distance, duration) between two points via ORS
+// ---- Safety score helpers ----
+const HAZARD_PROXIMITY_METERS = 50;
+
+// haversine formula: shortest distance between between two lat/lon points on a sphere, in meters (no, i did not come up with this function)
+function haversineDistanceMeters(lat1: number, lon1:number, lat2:number, lon2:number):number {
+
+    function toRad(deg: number): number {
+        return (deg * Math.PI) / 180;
+    }
+
+    const R = 6371000; // earth radius in meters
+    const dLat = toRad(lat2-lat1);
+    const dLon = toRad(lon2-lon1);
+    const a = 
+        Math.sin(dLat/2) ** 2 + 
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+// shortest distance from a point to any point along the route path
+function minDistanceToPath(lat: number, lon: number, path: {lat: number; lon:number}[]): number {
+    let min = Infinity;
+    for (const point of path) {
+        const dist = haversineDistanceMeters(lat, lon, point.lat, point.lon);
+        if (dist < min) min = dist;
+    }
+    return min;
+}
+
+// simple heuristic: start at 100, dock points for each hazard within HAZARD_PROXIMITY_METERES of the path, weighted by severity
+async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<number> {
+    const result = await pool.query('SELECT latitude, longitude, severity FROM hazards');
+
+    let penalty = 0;
+
+    for (const hazard of result.rows) {
+        const dist = minDistanceToPath(hazard.latitude, hazard.longitude, path);
+        if (dist <= HAZARD_PROXIMITY_METERS) {
+            penalty += hazard.severity * 5;
+        }
+    }
+
+    return Math.max(0, Math.min(100, 100 - penalty));
+
+}
+
+
+// POST /api/routes/directions - compute a cycling route (path, distance, duration) between two points via ORS + safety score! 
 // body needs { "start": {"lat": ####, "lon": ###}, "end": {....}}
 routesRouter.post("/directions", async (req: Request, res: Response) => {
     try {
@@ -100,11 +148,13 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
         const feature = orsData.features[0] as ORSDirectionsFeature;
 
         const path = (feature.geometry.coordinates).map(([lon, lat]) => ({ lat, lon }));
+        const safetyScore = await computeSafetyScore(path);
 
         return res.status(200).json({
             path, // an array of {lat, lon} objects representing the path
             distance: feature.properties.summary.distance,
-            duration: feature.properties.summary.duration
+            duration: feature.properties.summary.duration,
+            safetyScore
         });
 
     } catch (e) {
