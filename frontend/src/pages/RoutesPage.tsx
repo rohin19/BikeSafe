@@ -4,12 +4,24 @@ import Map from '../components/Map';
 import { geocodeApi, routeApi } from '../services/api';
 
 export default function RoutesPage() {
+  const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<RoutePoint[]>([]);
+  const [searching, setSearching] = useState<boolean>(false);
+
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
   const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number } | null >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+
+  function selectPoint(point: RoutePoint) {
+    if (pickingMode === 'start') {
+      setStart(point);
+    } else {
+      setDestination(point);
+    }
+  }
 
   async function handleMapClick(lat: number, lon: number) {
     try {
@@ -21,11 +33,7 @@ export default function RoutesPage() {
         label: result?.label ?? `${lat.toFixed(5)}, ${lon.toFixed(5)}`
       }
 
-      if (pickingMode === 'start'){
-        setStart(point);
-      } else {
-        setDestination(point);
-      }
+      selectPoint(point);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to resolve address');
     }
@@ -52,9 +60,52 @@ export default function RoutesPage() {
     fetchDirections();
   }, [start, destination]);
 
+  useEffect(() => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        setSearching(true);
+        const results = await geocodeApi.search(query);
+        setSearchResults(results);
+      } catch (e) {
+        setError(e instanceof Error ? e.message: 'Failed to search');
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [query]);
+
   return (
     <div className="page">
       <h1>Routes</h1>
+      <div className="route-search">
+        <input 
+          type="text"
+          placeholder={`Search for ${pickingMode} address... `}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}/>
+        {searching && <p className="text-muted">Searching... </p>}
+        {searchResults.length > 0 && (
+          <div className="search-results">
+            {searchResults.map((result) => (
+              <button
+                key={`${result.lat}, ${result.lon}`}
+                type="button"
+                className="search-result-item"
+                onClick={() => {selectPoint(result); setQuery(''); setSearchResults([]); }}>
+                  {result.label}
+                </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="mode-toggle">
         <button
           type="button"
