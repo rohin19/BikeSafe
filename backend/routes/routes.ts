@@ -164,7 +164,4 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
   },
 );
 
-
-
-
 export default routesRouter;
