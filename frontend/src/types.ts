@@ -127,8 +127,8 @@ export interface RoutePoint {
 }
 
 export interface RouteDisplay {
-    start: RoutePoint;
-    destination: RoutePoint;
+    start: RoutePoint | null;
+    destination: RoutePoint | null;
     path: {
         lat: number; 
         lon: number;

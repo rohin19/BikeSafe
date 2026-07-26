@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { RoutePoint, PickingMode } from '../types';
 import Map from '../components/Map';
-import { geocodeApi } from '../services/api';
+import { geocodeApi, routeApi } from '../services/api';
 
 export default function RoutesPage() {
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
+  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number } | null >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -29,6 +30,27 @@ export default function RoutesPage() {
       setError(e instanceof Error ? e.message : 'Failed to resolve address');
     }
   }
+
+  useEffect(() => {
+    if (!start || !destination) return;
+    const currentStart = start;
+    const currentDestination = destination;
+
+    async function fetchDirections() {
+      try {
+        setLoading(true);
+        setError('');
+        const result = await routeApi.directions(currentStart, currentDestination);
+        setDirections(result);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Failed to compute directions');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDirections();
+  }, [start, destination]);
 
   return (
     <div className="page">
@@ -60,7 +82,7 @@ export default function RoutesPage() {
       <div className="map-placeholder">
         <Map
           onMapClick={handleMapClick}
-          route={start && destination ? { start, destination, path: [] } : null}></Map>
+          route={{ start, destination, path: directions?.path ?? [] }}></Map>
       </div>
 
       <div className="page">

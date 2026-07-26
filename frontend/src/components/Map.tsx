@@ -13,6 +13,7 @@ export default function Map ({
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const onMapClickRef = useRef(onMapClick);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -49,7 +50,7 @@ export default function Map ({
     }
 
     function handleClick(e: L.LeafletMouseEvent) {
-      onMapClick?.(e.latlng.lat, e.latlng.lng);
+      onMapClickRef.current?.(e.latlng.lat, e.latlng.lng); // read from ref, not the closed-over prop
     }
 
     updateBounds();
@@ -133,6 +134,11 @@ export default function Map ({
 
   }, [stations, freeBikes, hazards]);
 
+  // keep onMapClickref point at the latest onMapClick, so the click listener (registered once on mount) always calls current logic
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
+
   useEffect(() => {
     // draws route markers
     const routeLayer = routeLayerRef.current; // this layer for routes and start/end markers
@@ -141,18 +147,24 @@ export default function Map ({
     routeLayer.clearLayers();
     if (!route) return;
 
-    L.marker([route.start.lat, route.start.lon])
-      .bindPopup(route.start.label)
-      .addTo(routeLayer)
+    if (route.start) {
+      L.marker([route.start.lat, route.start.lon])
+        .bindPopup(route.start.label)
+        .addTo(routeLayer);
+    }
 
-    L.marker([route.destination.lat, route.destination.lon])
-      .bindPopup(route.destination.label)
-      .addTo(routeLayer)
+    if (route.destination) {
+      L.marker([route.destination.lat, route.destination.lon])
+        .bindPopup(route.destination.label)
+        .addTo(routeLayer);
+    }
 
-    L.polyline(
-      route.path.map((p) => [p.lat, p.lon] as [number, number]),
-      { color: "blue", weight: 4 }
-    ).addTo(routeLayer);
+    if (route.path.length > 0) {
+      L.polyline(
+        route.path.map((p) => [p.lat, p.lon] as [number, number]),
+        { color: "blue", weight: 4 },
+      ).addTo(routeLayer);
+    }
   }, [route]);
 
   return (
