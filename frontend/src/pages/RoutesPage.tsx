@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import type { RoutePoint, PickingMode } from '../types';
+import type { RoutePoint, PickingMode, User } from '../types';
 import Map from '../components/Map';
 import { geocodeApi, routeApi } from '../services/api';
 
-export default function RoutesPage() {
+export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<RoutePoint[]>([]);
   const [searching, setSearching] = useState<boolean>(false);
