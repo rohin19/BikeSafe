@@ -131,3 +131,82 @@ export interface MapProps {
     }) => void;
     harzards?: Hazard[];
 }
+
+// The detail of the review
+export interface RouteReviewEntry {
+  review_id: number;
+  route_log_id: number;
+  user_id: number;
+  user_name: string;
+
+  overall_rating: number;
+  safety_rating: number;
+  difficulty_rating: number;
+
+  comments?: string | null;
+
+  created_at: string;
+  updated_at: string;
+}
+
+// The details of the log itself
+export interface RouteLogSummary {
+  route_log_id: number;
+  user_id: number;
+
+  planned_route_id: number | null;
+
+  start_name: string;
+  destination_name: string;
+
+  elevation: number;
+  distance: number;
+  duration: number;
+
+  street_names: string[];
+
+  completed_at: string;
+  created_at: string;
+
+  logged_by_name: string;
+
+  average_overall_rating: number;
+  average_safety_rating: number;
+  average_difficulty_rating: number;
+
+  review_count: number;
+}
+
+// List of summaries
+export interface RelatedRouteLog extends RouteLogSummary {
+  shared_streets: string[];
+}
+
+// List of logs
+export interface RouteLogDetail extends RouteLogSummary {
+  reviews: RouteReviewEntry[];
+  related_logs: RelatedRouteLog[];
+}
+
+export interface NewRouteReview {
+  overall_rating: number;
+  safety_rating: number;
+  difficulty_rating: number;
+  comments?: string;
+}
+
+export interface NewRouteLog {
+  planned_route_id?: number | null;
+
+  start_name: string;
+  destination_name: string;
+
+  elevation: number;
+  distance: number;
+  duration: number;
+
+  street_names: string[];
+  hazard_ids?: number[];
+
+  initial_review: NewRouteReview;
+}
