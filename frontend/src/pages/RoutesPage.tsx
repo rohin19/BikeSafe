@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { RoutePoint, PickingMode, User } from '../types';
+import type { RoutePoint, PickingMode, User, Route } from '../types';
 import Map from '../components/Map';
 import { geocodeApi, routeApi } from '../services/api';
 
@@ -16,6 +16,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
+  const [routes, setRoutes] = useState<Route[]>([]);
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
     if (pickingMode === 'start') {
@@ -111,6 +112,13 @@ export default function RoutesPage({ user }: {user: User | null}) {
     return () => clearTimeout(timeout);
   }, [query]);
 
+  // loads saved routes for the "your Routes" section; refetches after a successful save so new one appears
+  useEffect(() => {
+    routeApi.list()
+      .then(setRoutes)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load routes'))
+  }, [saved]);
+  
   return (
     <div className="page">
       <h1>Routes</h1>
@@ -153,8 +161,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
       </div>
 
       <div className="route-points">
-        <p><strong>Start: {start ? `(${start.label})` : <span className="text-muted">Not set</span>}</strong></p>
-        <p><strong>Destination: {destination ? `(${destination.label})` : <span className="text-muted">Not set</span>}</strong></p>
+        <p><strong>Start: {start ? `${start.label}` : <span className="text-muted">Not set</span>}</strong></p>
+        <p><strong>Destination: {destination ? `${destination.label}` : <span className="text-muted">Not set</span>}</strong></p>
       </div>
       {directions && (
         <>
@@ -179,8 +187,15 @@ export default function RoutesPage({ user }: {user: User | null}) {
 
       <div className="page">
         <h1>Your Routes</h1>
-        <p>Previously created and favourited routes (WIP)</p>
-        {/* TODO: wire up routeApi.list() and favourites concept once the schema/endpoint supports it */}
+        {routes.length === 0 && <p className="text-muted"> No routes saved yet.</p>}
+        {routes.map((r) => (
+          <div key={r.route_id} className="route-card">
+            <p><strong>{r.start_name} → {r.destination_name}</strong></p>
+            <p className="text-muted">
+              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Safety {r.safety_score}/100
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   )
