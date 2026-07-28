@@ -79,6 +79,9 @@ export const routeApi = {
         method: 'POST',
         body: JSON.stringify(route),
     }),
+    remove: (routeId: number) => apiRequest(`/api/routes/${routeId}`, {
+        method: 'DELETE'
+    }),
 }
 
 export const geocodeApi = {

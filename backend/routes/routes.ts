@@ -6,7 +6,7 @@ import requireAuth from '../middleware/requireAuth';
 const routesRouter = Router();
 
 // --- GET REQUESTS
-// GET /api/routes - return ALL routes
+// GET /api/routes - return ALL routes, could be used for admin
 routesRouter.get("/", async (req: Request, res: Response) => {
   try {
     const result = await pool.query('SELECT * FROM routes');
@@ -179,5 +179,24 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
     }
   },
 );
+
+// DELETE /api/routes/:id - delete a route, only if it belongs to the logged-in user
+routesRouter.delete('/:id', requireAuth, async(req: Request, res: Response) => {
+    try{
+        const routeID = req.params.id;
+        const result = await pool.query(
+            `DELETE FROM routes WHERE route_id = $1 AND created_by = $2 RETURNING *`, [routeID, req.user!.user_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Route not found' });
+        }
+
+        return res.status(200).json(result.rows[0]);
+    } catch (e) {
+        console.error(`Error deleting route: ${e}`);
+        return res.status(500).json({ error: 'Failed to delete route' });
+    }
+})
 
 export default routesRouter;

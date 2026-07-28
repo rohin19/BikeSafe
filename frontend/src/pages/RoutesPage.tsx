@@ -43,6 +43,17 @@ export default function RoutesPage({ user }: {user: User | null}) {
     }
   }
 
+  // delete handler
+  async function handleDelete(routeId: number) {
+    try {
+      setError('');
+      await routeApi.remove(routeId);
+      setRoutes((prev) => prev.filter((r) => r.route_id !== routeId));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to delete route');
+    }
+  }
+
   // saves route on display
   async function handleSave() {
     if (!start || !destination || !directions || !user) return;
@@ -194,6 +205,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
             <p className="text-muted">
               {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Elevation Gain: {Math.round(r.elevation)} m elevation· Safety {r.safety_score}/100.00
             </p>
+            <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>X</button>
           </div>
         ))}
       </div>
