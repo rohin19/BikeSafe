@@ -114,11 +114,11 @@ export default function RoutesPage({ user }: {user: User | null}) {
 
   // loads saved routes for the "your Routes" section; refetches after a successful save so new one appears
   useEffect(() => {
-    routeApi.list()
+    routeApi.mine()
       .then(setRoutes)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load routes'))
   }, [saved]);
-  
+
   return (
     <div className="page">
       <h1>Routes</h1>
@@ -166,7 +166,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
       </div>
       {directions && (
         <>
-          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Safety Score: {directions.safetyScore}/100</p>
+          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Safety Score: {directions.safetyScore}/100.00</p>
           <button
             type="button"
             className="button primary"
@@ -192,7 +192,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
           <div key={r.route_id} className="route-card">
             <p><strong>{r.start_name} → {r.destination_name}</strong></p>
             <p className="text-muted">
-              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Safety {r.safety_score}/100
+              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Safety {r.safety_score}/100.00
             </p>
           </div>
         ))}

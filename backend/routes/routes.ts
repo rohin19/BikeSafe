@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { pool } from '../db';
 import { ORSDirectionsFeature } from '../types/orsTypes';
+import requireAuth from '../middleware/requireAuth';
 
 const routesRouter = Router();
 
@@ -15,6 +16,18 @@ routesRouter.get("/", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Failed to fetch routes" });
   }
 });
+
+// GET api/routes/mine - return only the logged-in user's routes
+routesRouter.get("/mine", requireAuth, async(req: Request, res: Response) => {
+    try {
+        const userId = req.user!.user_id; // req.user is from requireAuth.ts, it's a custom key of the req obj that is accessible by any route; the ! is non-null assertion guaranteeing to TS compiler the value is not null/undefined
+        const result = await pool.query('SELECT * FROM routes WHERE created_by = $1', [userId]);
+        return res.status(200).json(result.rows);
+    } catch (e) {
+        console.error(`Error fetching routes: ${e}`);
+        return res.status(500).json({ error: 'Failed to fetch your routes' });
+    }
+})
 
 // GET /api/routes/:id - get specific route
 routesRouter.get("/:id", async (req: Request, res: Response) => {

@@ -66,6 +66,7 @@ export const hazardApi = {
 
 export const routeApi = {
     list: () => apiRequest('/api/routes'),
+    mine: () => apiRequest('/api/routes/mine'),
     directions: (
         start: { lat:number; lon: number }, end: { lat:number; lon: number }
     ) => apiRequest('/api/routes/directions', {
