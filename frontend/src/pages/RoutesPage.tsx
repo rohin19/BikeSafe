@@ -17,6 +17,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [error, setError] = useState<string>('');
 
   const [routes, setRoutes] = useState<Route[]>([]);
+  const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
+
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
     if (pickingMode === 'start') {
@@ -49,6 +51,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
       setError('');
       await routeApi.remove(routeId);
       setRoutes((prev) => prev.filter((r) => r.route_id !== routeId));
+      setAllRoutes((prev) => prev.filter((r) => r.route_id !== routeId)); // keep lists in sync (one is for admins)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to delete route');
     }
@@ -130,6 +133,18 @@ export default function RoutesPage({ user }: {user: User | null}) {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load routes'))
   }, [saved]);
 
+  // admin-only: loads every route in the system, not just the logged-in user's saved routes
+  useEffect(() => {
+    if (user?.role !== 'admin') {
+      setAllRoutes([]);
+      return;
+    }
+
+    routeApi.list()
+      .then(setAllRoutes)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load all routes'));
+  }, [saved, user]);
+
   return (
     <div className="page">
       <h1>Routes</h1>
@@ -209,6 +224,22 @@ export default function RoutesPage({ user }: {user: User | null}) {
           </div>
         ))}
       </div>
+
+      {user?.role === 'admin' && (
+        <div className="page">
+          <h1>All Routes (Admin)</h1>
+          {allRoutes.length === 0 && <p className="text-muted">No routes exist yet.</p>}
+          {allRoutes.map((r) => (
+            <div key={r.route_id} className="route-card">
+              <p><strong>{r.start_name} → {r.destination_name}</strong></p>
+              <p className="text-muted">
+                {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · {Math.round(r.elevation)} m elevation · Safety {r.safety_score}/100 · Created by user #{r.created_by}
+              </p>
+              <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>✕</button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

@@ -184,9 +184,12 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
 routesRouter.delete('/:id', requireAuth, async(req: Request, res: Response) => {
     try{
         const routeID = req.params.id;
-        const result = await pool.query(
-            `DELETE FROM routes WHERE route_id = $1 AND created_by = $2 RETURNING *`, [routeID, req.user!.user_id]
-        );
+        const isAdmin = req.user!.role === 'admin';
+
+        const result = isAdmin ? 
+        await pool.query('DELETE FROM routes WHERE route_id = $1 RETURNING *', [routeID]) 
+        : 
+        await pool.query(`DELETE FROM routes WHERE route_id = $1 AND created_by = $2 RETURNING *`, [routeID, req.user!.user_id]);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Route not found' });
