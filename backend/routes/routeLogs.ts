@@ -125,7 +125,6 @@ routeLogsRouter.get('/', async (req: Request, res: Response) => {
  * Returns:
  * - Ride measurements
  * - Reviews
- * - Linked hazards
  * - Other logs sharing streets
  */
 routeLogsRouter.get('/:id', async (req: Request, res: Response) => {
@@ -276,11 +275,8 @@ routeLogsRouter.get('/:id', async (req: Request, res: Response) => {
  * Creates:
  * - One completed ride
  * - The user's first review
- * - Optional hazard links
  */
-routeLogsRouter.post(
-  '/',
-  async (req: Request, res: Response) => {
+routeLogsRouter.post('/', async (req: Request, res: Response) => {
     const {
       planned_route_id,
       start_name,
@@ -289,7 +285,6 @@ routeLogsRouter.post(
       distance,
       duration,
       street_names,
-      hazard_ids,
       initial_review,
     } = req.body ?? {};
 
@@ -302,9 +297,6 @@ routeLogsRouter.post(
 
     const cleanedStreets =
       cleanStreetNames(street_names);
-
-    const cleanedHazardIds =
-      cleanHazardIds(hazard_ids);
 
     if (
       plannedRouteId !== null &&
@@ -457,28 +449,6 @@ routeLogsRouter.post(
           ],
         );
 
-      if (cleanedHazardIds.length > 0) {
-        await client.query(
-          `
-          INSERT INTO route_log_hazards (
-            route_log_id,
-            hazard_id
-          )
-
-          SELECT $1, hazard_id
-          FROM hazards
-          WHERE hazard_id =
-            ANY($2::integer[])
-
-          ON CONFLICT DO NOTHING
-          `,
-          [
-            routeLog.route_log_id,
-            cleanedHazardIds,
-          ],
-        );
-      }
-
       await client.query('COMMIT');
 
       return res.status(201).json({
@@ -506,12 +476,9 @@ routeLogsRouter.post(
 /*
  * POST /api/route-logs/:id/reviews
  *
- * Creates or updates the authenticated
- * user's review.
+ * Saves the current user's review or updates their existing review.
  */
-routeLogsRouter.post(
-  '/:id/reviews',
-  async (req: Request, res: Response) => {
+routeLogsRouter.post('/:id/reviews', async (req: Request, res: Response) => {
     const routeLogId =
       Number(req.params.id);
 
@@ -585,14 +552,8 @@ routeLogsRouter.post(
         RETURNING *
         `,
         [
-          routeLogId,
-          req.user!.user_id,
-          Number(overall_rating),
-          Number(safety_rating),
-          Number(difficulty_rating),
-          typeof comments === 'string'
-            ? comments.trim() || null
-            : null,
+          routeLogId, req.user!.user_id, Number(overall_rating), Number(safety_rating), Number(difficulty_rating),
+          typeof comments === 'string' ? comments.trim() || null : null
         ],
       );
 

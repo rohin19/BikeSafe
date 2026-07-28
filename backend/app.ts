@@ -5,6 +5,7 @@ import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import hazardsRouter from './routes/hazards';
 import bikeShareRouter from './routes/bikeShare';
+import routeLogsRouter from './routes/routeLogs';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
 
@@ -25,6 +26,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/bikeShare', bikeShareRouter); 
+app.use('/api/route-logs', routeLogsRouter);
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 

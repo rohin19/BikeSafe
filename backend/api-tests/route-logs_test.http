@@ -1,0 +1,80 @@
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Testing",
+  "email": "test123@example.com",
+  "password": "password123"
+}
+
+### Log in
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test123@example.com",
+  "password": "password123"
+}
+
+### Authenticate
+GET http://localhost:3001/api/auth/me
+
+### Create a completed route log and its initial review.
+# @name createRouteLog
+POST http://localhost:3001/api/route-logs
+Content-Type: application/json
+
+{
+  "planned_route_id": null,
+  "start_name": "Science World",
+  "destination_name": "Queen Elizabeth Park",
+  "elevation": 78,
+  "distance": 6200,
+  "duration": 1500,
+  "street_names": [
+    "Ontario St",
+    "E 10th Ave",
+    "Quebec St"
+  ],
+  "hazard_ids": [],
+  "initial_review": {
+    "overall_rating": 4,
+    "safety_rating": 5,
+    "difficulty_rating": 3,
+    "comments": "Mostly protected bike lanes with one steep section."
+  }
+}
+
+### List all community route logs.
+
+GET http://localhost:3001/api/route-logs
+
+### List only route logs created by the currently logged-in user.
+
+GET http://localhost:3001/api/route-logs?mine=true
+
+### Find route logs that share at least one specified street.
+### The comma and spaces are URL encoded.
+
+GET http://localhost:3001/api/route-logs?streets=Ontario%20St%2CE%2010th%20Ave
+
+### Read the route log created by the request above.
+### Includes its reviews, linked hazards, and related route logs.
+
+GET http://localhost:3001/api/route-logs/{{createRouteLog.response.body.$.route_log.route_log_id}}
+
+### Add or update the current user's review for the created route log.
+
+POST http://localhost:3001/api/route-logs/{{createRouteLog.response.body.$.route_log.route_log_id}}/reviews
+Content-Type: application/json
+
+{
+  "overall_rating": 4,
+  "safety_rating": 4,
+  "difficulty_rating": 2,
+  "comments": "Comfortable during off-peak hours."
+}
+
+### Read the route log again to verify that the review was updated.
+
+GET http://localhost:3001/api/route-logs/{{createRouteLog.response.body.$.route_log.route_log_id}}
