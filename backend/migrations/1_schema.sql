@@ -59,35 +59,12 @@ CREATE TABLE hazards (
 CREATE TABLE reviews (
     review_id SERIAL PRIMARY KEY,
     route_id INTEGER NOT NULL REFERENCES routes(route_id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES users(user_id) ON DELETE SET NULL,
     review_rating DECIMAL(2, 1) NOT NULL,
-    safety_rating DECIMAL(2, 1) NOT NULL,
-    difficulty_rating DECIMAL(2, 1) NOT NULL,
     comment VARCHAR(255),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CHECK (review_rating >= 0 AND review_rating <= 5),
-    CHECK (safety_rating >= 0 AND safety_rating <= 5),
-    CHECK (difficulty_rating >= 0 AND difficulty_rating <= 5),
-
-    -- A user updates their existing review instead of duplicating it.
-    UNIQUE (route_id, user_id)
-);
-
--- Route logs entity
-CREATE TABLE route_logs (
-    route_log_id SERIAL PRIMARY KEY,
-    route_id INTEGER NOT NULL REFERENCES routes(route_id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-
-    -- Simple MVP street matching.
-    street_names TEXT[] NOT NULL,
-
-    completed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CHECK (cardinality(street_names) > 0)
+    CHECK (review_rating >= 0 AND review_rating <= 5)
 );
 
 -- route hazard entity
