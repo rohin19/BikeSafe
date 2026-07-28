@@ -18,6 +18,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
 
   const [routes, setRoutes] = useState<Route[]>([]);
   const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
+  const [flyTo, setFlyTo] = useState<{ lat: number; lon: number } | null>(null);
 
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
@@ -162,7 +163,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
                 key={`${result.lat}, ${result.lon}`}
                 type="button"
                 className="search-result-item"
-                onClick={() => {selectPoint(result); setQuery(''); setSearchResults([]); }}>
+                onClick={() => {selectPoint(result); setFlyTo({ lat: result.lat, lon: result.lon }); setQuery(''); setSearchResults([]); }}>
                   {result.label}
                 </button>
             ))}
@@ -208,7 +209,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
       <div className="map-placeholder">
         <Map
           onMapClick={handleMapClick}
-          route={{ start, destination, path: directions?.path ?? [] }}></Map>
+          route={{ start, destination, path: directions?.path ?? [] }}
+          flyTo={flyTo}></Map>
       </div>
 
       <div className="page">

@@ -147,6 +147,7 @@ export interface MapProps {
     hazards?: Hazard[];
     route?: RouteDisplay | null;
     onMapClick?: (lat:number, lon:number) => void;
+    flyTo?: { lat: number; lon: number } | null;
 }
 
 export type PickingMode = 'start' | 'destination';
