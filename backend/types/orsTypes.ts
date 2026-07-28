@@ -15,6 +15,7 @@ export interface ORSDirectionsFeature {
         summary: {
             distance: number,
             duration: number
-        }
+        },
+        ascent: number,
     }
 }

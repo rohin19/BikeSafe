@@ -154,6 +154,7 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
                     [startLon, startLat], // ORS takes its coord pair as lon/lat (different from our api's lon/lat convention)
                     [endLon, endLat],
                 ],
+                elevation: true,
             }),
         });
 
@@ -161,13 +162,15 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
         const feature = orsData.features[0] as ORSDirectionsFeature;
 
         const path = (feature.geometry.coordinates).map(([lon, lat]) => ({ lat, lon }));
+        const elevation = feature.properties.ascent ?? 0;
         const safetyScore = await computeSafetyScore(path);
 
         return res.status(200).json({
             path, // an array of {lat, lon} objects representing the path
             distance: feature.properties.summary.distance,
             duration: feature.properties.summary.duration,
-            safetyScore
+            safetyScore,
+            elevation
         });
 
     } catch (e) {

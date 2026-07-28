@@ -12,7 +12,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
-  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number } | null >(null);
+  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number } | null >(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -56,7 +56,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
         destination_name: destination.label,
         destination_latitude: destination.lat,
         destination_longitude: destination.lon,
-        elevation: 0, // hardcoded for now, to be implemented
+        elevation: directions.elevation, 
         distance: directions.distance,
         duration: directions.duration,
         safety_score: directions.safetyScore,
@@ -166,7 +166,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
       </div>
       {directions && (
         <>
-          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Safety Score: {directions.safetyScore}/100.00</p>
+          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Elevation Gain: {Math.round(directions.elevation)} m · Safety Score: {directions.safetyScore}/100.00</p>
           <button
             type="button"
             className="button primary"
@@ -192,7 +192,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
           <div key={r.route_id} className="route-card">
             <p><strong>{r.start_name} → {r.destination_name}</strong></p>
             <p className="text-muted">
-              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Safety {r.safety_score}/100.00
+              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Elevation Gain: {Math.round(r.elevation)} m elevation· Safety {r.safety_score}/100.00
             </p>
           </div>
         ))}
