@@ -8,6 +8,8 @@ import bikeShareRouter from './routes/bikeShare';
 import reviewsRouter from './routes/reviews';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
+import routesRouter from './routes/routes';
+import geocodeRouter from './routes/geocode';
 
 // create express app
 const app = express();
@@ -27,6 +29,8 @@ app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/bikeShare', bikeShareRouter); 
 app.use('/api/reviews', reviewsRouter);
+app.use('/api/routes', routesRouter);
+app.use('/api/routes/geocode', geocodeRouter);
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 
