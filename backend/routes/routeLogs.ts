@@ -206,6 +206,7 @@ routeLogsRouter.get('/:id', async (req: Request, res: Response) => {
       return res.status(200).json({
         ...routeLog,
         reviews: reviewsResult.rows,
+        hazards: hazardsResult.rows,
         related_logs: relatedResult.rows,
       });
     } catch (error) {

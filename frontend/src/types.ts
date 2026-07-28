@@ -185,6 +185,7 @@ export interface RelatedRouteLog extends RouteLogSummary {
 // List of logs
 export interface RouteLogDetail extends RouteLogSummary {
   reviews: RouteReviewEntry[];
+  hazards: Hazard[];
   related_logs: RelatedRouteLog[];
 }
 

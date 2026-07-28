@@ -74,9 +74,7 @@ export const bikeShareApi = {
 }
 
 export const routeLogApi = {
-  list: (
-    filters: { streets?: string; mine?: boolean; } = {},
-  ) => {
+  list: (filters: { streets?: string; mine?: boolean; } = {}) => {
     const params = new URLSearchParams();
 
     if (filters.streets?.trim()) {

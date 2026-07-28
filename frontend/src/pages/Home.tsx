@@ -46,6 +46,11 @@ export default function Home({ user }: {user: User}) {
       <Link to="/hazards/new" className="button primary">
       + Report a hazard
       </Link>
+
+      <Link to="/route-logs" className="button primary">
+        Ride logs & reviews
+      </Link>
+
     </div>
   )
   
