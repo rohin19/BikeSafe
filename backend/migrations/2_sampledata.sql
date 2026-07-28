@@ -17,12 +17,16 @@ INSERT INTO hazards (user_id, title, description, category, current_status, seve
     ((SELECT user_id FROM users WHERE name = 'Alice'), 'Pothole on Main St', 'A large pothole causing traffic issues.', 'Road Condition', 'reported', 3, 49.2827, -123.1207),
     ((SELECT user_id FROM users WHERE name = 'Bob'), 'Fallen Tree on Trail', 'A fallen tree blocking the trail.', 'Obstacle', 'in_progress', 4, 49.2820, -123.1150);
 
-INSERT INTO reviews (route_id, user_id, review_rating, comment) VALUES 
-    ((SELECT route_id FROM routes WHERE start_name = 'Science World' AND destination_name = 'BC Place'), (SELECT user_id FROM users WHERE name = 'Alice'), 4.5, 'Nice route with some traffic.'),
-    ((SELECT route_id FROM routes WHERE start_name = 'Trout Lake' AND destination_name = 'Jericho Beach'), (SELECT user_id FROM users WHERE name = 'Bob'), 2.3, 'Ok route lots of traffic and hazards.');
+INSERT INTO reviews (route_id, user_id, review_rating, safety_rating, difficulty_rating, comment) VALUES 
+    ((SELECT route_id FROM routes WHERE start_name = 'Science World' AND destination_name = 'BC Place'), (SELECT user_id FROM users WHERE name = 'Alice'), 4.5, 4.0, 2.0, 'Nice route with some traffic.'),
+    ((SELECT route_id FROM routes WHERE start_name = 'Trout Lake' AND destination_name = 'Jericho Beach'), (SELECT user_id FROM users WHERE name = 'Bob'), 2.3, 2.0, 4.0, 'Ok route lots of traffic and hazards.');
 
 INSERT INTO route_hazards (route_id, hazard_id) VALUES 
     ((SELECT route_id FROM routes WHERE start_name = 'Science World' AND destination_name = 'BC Place'), (SELECT hazard_id FROM hazards WHERE title = 'Pothole on Main St')),
     ((SELECT route_id FROM routes WHERE start_name = 'Trout Lake' AND destination_name = 'Jericho Beach'), (SELECT hazard_id FROM hazards WHERE title = 'Fallen Tree on Trail'));
+
+INSERT INTO route_logs (route_id, user_id, street_names) VALUES
+    ((SELECT route_id FROM routes WHERE start_name = 'Science World' AND destination_name = 'BC Place'), (SELECT user_id FROM users WHERE name = 'Alice'), ARRAY['ontario st', 'e 10th ave', 'quebec st']),
+    ((SELECT route_id FROM routes WHERE start_name = 'Trout Lake' AND destination_name = 'Jericho Beach'), (SELECT user_id FROM users WHERE name = 'Bob'), ARRAY['commercial dr', 'w 10th ave', 'point grey rd']);
 
 COMMIT;
