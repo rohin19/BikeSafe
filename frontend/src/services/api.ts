@@ -66,6 +66,27 @@ export const hazardApi = {
 
 export const routeApi = {
     list: () => apiRequest('/api/routes'),
+    mine: () => apiRequest('/api/routes/mine'),
+    directions: (
+        start: { lat:number; lon: number }, end: { lat:number; lon: number }
+    ) => apiRequest('/api/routes/directions', {
+            method: 'POST',
+            body: JSON.stringify({ start, end }),
+    }),
+    create: (route: {
+        start_name: string; start_latitude: number; start_longitude: number; destination_name: string; destination_latitude:number; destination_longitude: number; elevation: number; distance: number; duration: number; safety_score: number; created_by: number;
+    }) => apiRequest('/api/routes', {
+        method: 'POST',
+        body: JSON.stringify(route),
+    }),
+    remove: (routeId: number) => apiRequest(`/api/routes/${routeId}`, {
+        method: 'DELETE'
+    }),
+}
+
+export const geocodeApi = {
+    search: (query:string) => apiRequest(`/api/routes/geocode/search?q=${encodeURIComponent(query)}`),
+    reverse: (lat:number, lon:number) => apiRequest(`/api/routes/geocode/reverse?lat=${lat}&lon=${lon}`),
 }
 
 export const bikeShareApi = {

@@ -120,6 +120,21 @@ export interface Bounds {
   west: number;
 }
 
+export interface RoutePoint {
+    lat: number;
+    lon: number;
+    label: string;
+}
+
+export interface RouteDisplay {
+    start: RoutePoint | null;
+    destination: RoutePoint | null;
+    path: {
+        lat: number; 
+        lon: number;
+    }[];
+}
+
 export interface MapProps {
     stations?: CleanStation[];
     freeBikes?: CleanFreeBike[];
@@ -129,5 +144,11 @@ export interface MapProps {
         east: number;
         west: number;
     }) => void;
-    harzards?: Hazard[];
+    hazards?: Hazard[];
+    route?: RouteDisplay | null;
+    onMapClick?: (lat:number, lon:number) => void;
+    flyTo?: { lat: number; lon: number } | null;
 }
+
+export type PickingMode = 'start' | 'destination';
+

@@ -1,0 +1,7 @@
+### Forward geocode - search for an address/place name
+GET http://localhost:3001/api/routes/geocode/search?q=Vancouver
+
+###
+
+### Reverse geocode - resolve coordinates to the nearest address
+GET http://localhost:3001/api/routes/geocode/reverse?lat=49.2827&lon=-123.1207
