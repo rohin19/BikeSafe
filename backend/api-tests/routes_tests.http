@@ -1,0 +1,48 @@
+### List all routes (public, unfiltered)
+GET http://localhost:3001/api/routes
+
+###
+
+### List only the logged-in user's routes (log in first via auth_tests.http)
+GET http://localhost:3001/api/routes/mine
+
+###
+
+### Get a specific route by id
+GET http://localhost:3001/api/routes/1
+
+###
+
+### Compute directions between two points (path + distance + duration + elevation + safety score)
+POST http://localhost:3001/api/routes/directions
+Content-Type: application/json
+
+{
+  "start": { "lat": 49.2827, "lon": -123.1207 },
+  "end": { "lat": 49.2820, "lon": -123.1150 }
+}
+
+###
+
+### Create a new route
+POST http://localhost:3001/api/routes
+Content-Type: application/json
+
+{
+  "start_name": "Science World",
+  "start_latitude": 49.273468,
+  "start_longitude": -123.102911,
+  "destination_name": "BC Place",
+  "destination_latitude": 49.276721,
+  "destination_longitude": -123.112381,
+  "elevation": 42,
+  "distance": 918.1,
+  "duration": 207.5,
+  "safety_score": 90,
+  "created_by": 1
+}
+
+###
+
+### Delete a route by id (own route unless logged in as admin)
+DELETE http://localhost:3001/api/routes/1
