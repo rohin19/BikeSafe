@@ -40,7 +40,7 @@ export default function Home({ user }: {user: User}) {
 
       <h2>map · nearby hazards</h2>
       <div className="map-placeholder">
-        <Map harzards={hazards}></Map>
+        <Map hazards={hazards}></Map>
       </div>
 
       <Link to="/hazards/new" className="button primary">
