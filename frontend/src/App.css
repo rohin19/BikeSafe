@@ -339,7 +339,13 @@
 .search-result-item:hover {
   background: var(--accent-blue-bg);
 }
-  
+
+/* highlights whichever route-picker card is currently selected */
+.route-card.selected {
+  border: 2px solid var(--accent-blue);
+  background: var(--accent-blue-bg);
+}
+
 h1 {
   color: #f5f7ff;
 }
