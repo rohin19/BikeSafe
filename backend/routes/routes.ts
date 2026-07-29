@@ -127,8 +127,21 @@ async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<
 
 }
 
+// ---- Hazard-avoidance helpers ----
+const HAZARD_AVOID_BUFFER_DEG = 0.0004; // rough ~30-40m square around a hazard, no trig needed, just a fixed offset
 
-// POST /api/routes/directions - compute a cycling route (path, distance, duration) between two points via ORS + safety score! 
+// builds a simple rectangle "avoid" shape around one hazard point (closes the ring by repeating the first point)
+function hazardToPolygon(lat: number, lon: number): number[][] {
+    return [
+        [lon - HAZARD_AVOID_BUFFER_DEG, lat - HAZARD_AVOID_BUFFER_DEG],
+        [lon + HAZARD_AVOID_BUFFER_DEG, lat - HAZARD_AVOID_BUFFER_DEG],
+        [lon + HAZARD_AVOID_BUFFER_DEG, lat + HAZARD_AVOID_BUFFER_DEG],
+        [lon - HAZARD_AVOID_BUFFER_DEG, lat + HAZARD_AVOID_BUFFER_DEG],
+        [lon - HAZARD_AVOID_BUFFER_DEG, lat - HAZARD_AVOID_BUFFER_DEG],
+    ];
+}
+
+// POST /api/routes/directions - compute cycling route alternatives (path, distance, duration, elevation, safety score) via ORS
 // body needs { "start": {"lat": ####, "lon": ###}, "end": {....}}
 routesRouter.post("/directions", async (req: Request, res: Response) => {
     try {
@@ -143,35 +156,69 @@ routesRouter.post("/directions", async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'start and end must each include valid lat/lon' });
         }
 
-        const orsRes = await fetch('https://api.openrouteservice.org/v2/directions/cycling-regular/geojson', {
-            method: 'POST',
-            headers: {
-                'Authorization': process.env.ORS_API_KEY as string,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                coordinates: [
-                    [startLon, startLat], // ORS takes its coord pair as lon/lat (different from our api's lon/lat convention)
-                    [endLon, endLat],
-                ],
-                elevation: true,
-            }),
-        });
+        // grab hazards roughly near this trip (padded bounding box) so we can build an avoid_polygons shape
+        const PAD = 0.01; // ~1km padding
+        const minLat = Math.min(startLat, endLat) - PAD;
+        const maxLat = Math.max(startLat, endLat) + PAD;
+        const minLon = Math.min(startLon, endLon) - PAD;
+        const maxLon = Math.max(startLon, endLon) + PAD;
+        
+        // gets the hazards which have their coordinates inside this box's space, storing them in nearby
+        const nearby = await pool.query(
+            'SELECT latitude, longitude FROM hazards WHERE latitude BETWEEN $1 AND $2 AND longitude BETWEEN $3 AND $4',
+            [minLat, maxLat, minLon, maxLon]
+        );
 
-        const orsData = await orsRes.json();
-        const feature = orsData.features[0] as ORSDirectionsFeature;
+        const avoidPolygons = nearby.rows.length > 0 ? {
+            type: 'MultiPolygon',
+            coordinates: nearby.rows.map((h) => [hazardToPolygon(h.latitude, h.longitude)]),
+        } : undefined;
 
-        const path = (feature.geometry.coordinates).map(([lon, lat]) => ({ lat, lon }));
-        const elevation = feature.properties.ascent ?? 0;
-        const safetyScore = await computeSafetyScore(path);
+        // calls ORS, optionally avoiding nearby hazards, and scores every alternative it gives back
+        async function fetchRoutes(useAvoidPolygons: boolean) {
+            const orsRes = await fetch('https://api.openrouteservice.org/v2/directions/cycling-regular/geojson', {
+                method: 'POST',
+                headers: {
+                    'Authorization': process.env.ORS_API_KEY as string,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    coordinates: [
+                        [startLon, startLat], // ORS takes its coord pair as lon/lat (different from our api's lon/lat convention)
+                        [endLon, endLat],
+                    ],
+                    alternative_routes: { target_count: 3, weight_factor: 1.6, share_factor: 0.6 },
+                    elevation: true,
+                    ...(useAvoidPolygons && avoidPolygons ? { options: { avoid_polygons: avoidPolygons } } : {}),
+                }),
+            });
 
-        return res.status(200).json({
-            path, // an array of {lat, lon} objects representing the path
-            distance: feature.properties.summary.distance,
-            duration: feature.properties.summary.duration,
-            safetyScore,
-            elevation
-        });
+            if (!orsRes.ok) return []; // e.g. no viable detour around the hazard - fail soft, the direct call still runs
+
+            const orsData = await orsRes.json();
+            const features = (orsData.features ?? []) as ORSDirectionsFeature[];
+
+            const results = [];
+            for (const feature of features) {
+                const path = feature.geometry.coordinates.map(([lon, lat]) => ({ lat, lon }));
+                const safetyScore = await computeSafetyScore(path);
+                results.push({
+                    path, // an array of {lat, lon} objects representing the path
+                    distance: feature.properties.summary.distance,
+                    duration: feature.properties.summary.duration,
+                    elevation: feature.properties.ascent ?? 0,
+                    safetyScore,
+                    avoidedHazards: useAvoidPolygons,
+                });
+            }
+            return results;
+        }
+
+        // two calls only when there's actually something nearby to avoid - no point doubling up otherwise
+        const hazardAvoidingAlternatives = avoidPolygons ? await fetchRoutes(true) : [];
+        const directAlternatives = await fetchRoutes(false);
+
+        return res.status(200).json({ alternatives: [...hazardAvoidingAlternatives, ...directAlternatives] });
 
     } catch (e) {
       console.error(`Error computing directions: ${e}`);
