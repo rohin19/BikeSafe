@@ -15,6 +15,12 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
   const [comment, setComment] = useState(review?.comment ?? '');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  
+  const sortedRoutes = [...routes].sort((a, b) => {
+    const aTime = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const bTime = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return bTime - aTime;
+  });
 
   // Update current status on initialization, and whenever review or route changes
   useEffect(() => {
@@ -52,6 +58,12 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
     }
   }
 
+  function formatRouteDate(createdAt: string) {
+    const date = new Date(createdAt);
+    if (Number.isNaN(date.getTime())) { return 'Date unavailable'; }
+    return new Intl.DateTimeFormat('en-CA', { dateStyle: 'medium', timeStyle: 'short'}).format(date);
+  }
+
   // If nothing exists, such that there's neither routes or previous reviews to work with, then we need to create them first
   if (!review && routes.length === 0) {
     return (
@@ -68,11 +80,17 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
       <label>
         Route
         <select value={routeId} disabled={Boolean(review)} onChange={(event) => setRouteId(Number(event.target.value))}>
-          {routes.map((route) => (
-            <option key={route.route_id} value={route.route_id}>
-              {route.start_name} → {route.destination_name}
-            </option>
-          ))}
+          {sortedRoutes.map(
+            (route, index) => (
+              <option key={route.route_id} value={route.route_id}>
+                {route.start_name}
+                {' → '}
+                {route.destination_name}
+                {' '}
+                {index === 0 ? '(Most recent)' : `(${formatRouteDate(route.created_at ? route.created_at : '')})`}
+              </option>
+            )
+          )}
         </select>
       </label>
 
