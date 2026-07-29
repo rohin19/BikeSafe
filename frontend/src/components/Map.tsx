@@ -102,8 +102,8 @@ export default function Map ({
           <div class="hazard-content">!</div>
         </div>
       `,
-      iconSize: [24, 20],
-      iconAnchor: [12, 10],
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
       popupAnchor: [0, -10],
     });
 
