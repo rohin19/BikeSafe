@@ -62,6 +62,13 @@ export default function RoutesPage({ user }: {user: User | null}) {
     }
   }
 
+  // selects a saved route to view: reuses the same start/dest -> directions pipeline as planning a new one, just seeded from a saved row instead of a search/click
+  function handleSelectRoute(r: Route) {
+    setStart({ lat: r.start_latitude, lon: r.start_longitude, label: r.start_name });
+    setDestination({ lat: r.destination_latitude, lon: r.destination_longitude, label: r.destination_name });
+    setFlyTo({ lat: r.start_latitude, lon: r.start_longitude });
+  }
+
   // saves route on display
   async function handleSave() {
     if (!start || !destination || !directions || !user) return;
@@ -256,12 +263,12 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <h1>Your Routes</h1>
         {routes.length === 0 && <p className="text-muted"> No routes saved yet.</p>}
         {routes.map((r) => (
-          <div key={r.route_id} className="route-card">
+          <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
             <p><strong>{r.start_name} → {r.destination_name}</strong></p>
             <p className="text-muted">
               {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Elevation Gain: {Math.round(r.elevation)} m elevation· Safety {r.safety_score}/100.00
             </p>
-            <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>X</button>
+            <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>X</button>
           </div>
         ))}
       </div>
@@ -271,12 +278,12 @@ export default function RoutesPage({ user }: {user: User | null}) {
           <h1>All Routes (Admin)</h1>
           {allRoutes.length === 0 && <p className="text-muted">No routes exist yet.</p>}
           {allRoutes.map((r) => (
-            <div key={r.route_id} className="route-card">
+            <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
               <p><strong>{r.start_name} → {r.destination_name}</strong></p>
               <p className="text-muted">
                 {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · {Math.round(r.elevation)} m elevation · Safety {r.safety_score}/100 · Created by user #{r.created_by}
               </p>
-              <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>✕</button>
+              <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>✕</button>
             </div>
           ))}
         </div>

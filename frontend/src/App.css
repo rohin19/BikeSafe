@@ -340,6 +340,11 @@
   background: var(--accent-blue-bg);
 }
 
+/* route-cards are clickable (route picker + saved routes lists), so show that */
+.route-card {
+  cursor: pointer;
+}
+
 /* highlights whichever route-picker card is currently selected */
 .route-card.selected {
   border: 2px solid var(--accent-blue);
