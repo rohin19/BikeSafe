@@ -62,7 +62,7 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
   }
 
   return (
-    <form className="card" onSubmit={handleSubmit}>
+    <form className="review-card" onSubmit={handleSubmit}>
       <h2>{review ? 'Edit review' : 'Add review'}</h2>
 
       <label>

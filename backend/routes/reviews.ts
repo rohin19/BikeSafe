@@ -5,8 +5,10 @@ import requireAuth from '../middleware/requireAuth';
 
 const reviewsRouter = Router();
 
+// Make sure the user is authenticated to use these apis
 reviewsRouter.use(requireAuth);
 
+// Contain both the review and route fields
 const reviewFields = `
   rv.review_id,
   rv.route_id,
@@ -23,11 +25,13 @@ const reviewFields = `
   r.safety_score::float AS safety_score
 `;
 
+// Make sure number field are positively valid
 function parsePositiveInteger(value: unknown): number | null {
   const number = Number(value);
   return Number.isInteger(number) && number > 0 ? number : null;
 }
 
+// Make sure the review ratings are valid
 function parseRating(value: unknown): number | null {
   const number = Number(value);
 
@@ -35,10 +39,11 @@ function parseRating(value: unknown): number | null {
     return null;
   }
 
-  // reviews.review_rating is DECIMAL(2, 1).
+  // the review raiting is 2 decimal point
   return Math.round(number * 10) / 10;
 }
 
+// Make sure the comments are valid and within 255 characters
 function parseComment(value: unknown): {valid: boolean; comment: string | null;} {
   if (value === undefined || value === null) {
     return { valid: true, comment: null };
@@ -61,7 +66,7 @@ function parseComment(value: unknown): {valid: boolean; comment: string | null;}
 /*
  * GET /api/reviews
  *
- * Optional filters:
+ * Also contain optional param to filter search, like:
  *   ?search=central park
  *   ?mine=true
  *   ?route_id=3
@@ -93,19 +98,16 @@ reviewsRouter.get('/', async (req: Request, res: Response) => {
     conditions.push(`rv.user_id = $${values.length}`);
   }
 
+  // Store the values of the queries and valid conditions
   if (routeIdQuery !== undefined) {
     const routeId = parsePositiveInteger(routeIdQuery);
-
-    if (routeId === null) {
-      return res.status(400).json({ error: 'Invalid route_id' });
-    }
-
+    if (routeId === null) { return res.status(400).json({ error: 'Invalid route_id' }); }
     values.push(routeId);
     conditions.push(`rv.route_id = $${values.length}`);
   }
 
+  // set up the conditions into sql WHERE clauses
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
   try {
     const result = await pool.query<CommunityReview>(
       `
@@ -129,11 +131,7 @@ reviewsRouter.get('/', async (req: Request, res: Response) => {
 /* GET /api/reviews/:id */
 reviewsRouter.get('/:id', async (req: Request, res: Response) => {
   const reviewId = parsePositiveInteger(req.params.id);
-
-  if (reviewId === null) {
-    return res.status(400).json({ error: 'Invalid review id' });
-  }
-
+  if (reviewId === null) { return res.status(400).json({ error: 'Invalid review id' }); }
   try {
     const result = await pool.query(
       `
@@ -145,11 +143,7 @@ reviewsRouter.get('/:id', async (req: Request, res: Response) => {
       `,
       [reviewId]
     );
-
-    if (!result.rows[0]) {
-      return res.status(404).json({ error: 'Review not found' });
-    }
-
+    if (!result.rows[0]) { return res.status(404).json({ error: 'Review not found' }); }
     return res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching review:', error);
@@ -165,17 +159,9 @@ reviewsRouter.post('/', async (req: Request<Record<string, never>, unknown, Crea
   const rating = parseRating(req.body?.review_rating);
   const parsedComment = parseComment(req.body?.comment);
 
-  if (routeId === null) {
-    return res.status(400).json({ error: 'route_id must be a valid route id' });
-  }
-
-  if (rating === null) {
-    return res.status(400).json({ error: 'review_rating must be between 0 and 5' });
-  }
-
-  if (!parsedComment.valid) {
-    return res.status(400).json({ error: 'comment must be at most 255 characters' });
-  }
+  if (routeId === null) { return res.status(400).json({ error: 'route_id must be a valid route id' }); }
+  if (rating === null) { return res.status(400).json({ error: 'review_rating must be between 0 and 5' }); }
+  if (!parsedComment.valid) { return res.status(400).json({ error: 'comment must be at most 255 characters' }); }
 
   try {
     // INSERT ... SELECT lets us return 404 without relying on a foreign-key error.
@@ -190,10 +176,7 @@ reviewsRouter.post('/', async (req: Request<Record<string, never>, unknown, Crea
       [routeId, req.user!.user_id, rating, parsedComment.comment],
     );
 
-    if (!result.rows[0]) {
-      return res.status(404).json({ error: 'Route not found' });
-    }
-
+    if (!result.rows[0]) { return res.status(404).json({ error: 'Route not found' }); }
     return res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error creating review:', error);
@@ -207,29 +190,18 @@ reviewsRouter.post('/', async (req: Request<Record<string, never>, unknown, Crea
  */
 reviewsRouter.patch('/:id', async (req: Request<{ id: string }, unknown, UpdateReviewBody>, res: Response) => {
   const reviewId = parsePositiveInteger(req.params.id);
-
-  if (reviewId === null) {
-    return res.status(400).json({ error: 'Invalid review id' });
-  }
+  if (reviewId === null) { return res.status(400).json({ error: 'Invalid review id' }); }
 
   const hasRating = req.body?.review_rating !== undefined;
   const hasComment = Object.prototype.hasOwnProperty.call(req.body ?? {}, 'comment');
 
-  if (!hasRating && !hasComment) {
-    return res.status(400).json({error: 'Provide review_rating or comment to update'});
-  }
+  if (!hasRating && !hasComment) { return res.status(400).json({error: 'Provide review_rating or comment to update'}); }
 
   const rating = hasRating ? parseRating(req.body.review_rating) : null;
-
-  if (hasRating && rating === null) {
-    return res.status(400).json({ error: 'review_rating must be between 0 and 5' });
-  }
+  if (hasRating && rating === null) { return res.status(400).json({ error: 'review_rating must be between 0 and 5' }); }
 
   const parsedComment = hasComment ? parseComment(req.body.comment) : { valid: true, comment: null };
-
-  if (!parsedComment.valid) {
-    return res.status(400).json({ error: 'comment must be at most 255 characters' });
-  }
+  if (!parsedComment.valid) { return res.status(400).json({ error: 'comment must be at most 255 characters' }); }
 
   try {
     const result = await pool.query<Review>(
@@ -251,10 +223,7 @@ reviewsRouter.patch('/:id', async (req: Request<{ id: string }, unknown, UpdateR
       [hasRating, rating, hasComment, parsedComment.comment, reviewId, req.user!.user_id]
     );
 
-    if (!result.rows[0]) {
-      return res.status(404).json({error: 'Review not found or you do not own it'});
-    }
-
+    if (!result.rows[0]) { return res.status(404).json({error: 'Review not found or you do not own it'}); }
     return res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error('Error updating review:', error);
@@ -265,10 +234,7 @@ reviewsRouter.patch('/:id', async (req: Request<{ id: string }, unknown, UpdateR
 /* DELETE /api/reviews/:id */
 reviewsRouter.delete('/:id', async (req: Request, res: Response) => {
   const reviewId = parsePositiveInteger(req.params.id);
-
-  if (reviewId === null) {
-    return res.status(400).json({ error: 'Invalid review id' });
-  }
+  if (reviewId === null) { return res.status(400).json({ error: 'Invalid review id' }); }
 
   try {
     const result = await pool.query(
@@ -281,12 +247,7 @@ reviewsRouter.delete('/:id', async (req: Request, res: Response) => {
       [reviewId, req.user!.user_id],
     );
 
-    if (!result.rows[0]) {
-      return res.status(404).json({
-        error: 'Review not found or you do not own it',
-      });
-    }
-
+    if (!result.rows[0]) { return res.status(404).json({error: 'Review not found or you do not own it'}); }
     return res.status(200).json({ message: 'Review deleted' });
   } catch (error) {
     console.error('Error deleting review:', error);

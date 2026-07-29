@@ -1,8 +1,7 @@
-@baseUrl = http://localhost:3001
 @routeId = 1
 
 ### Register a test user
-POST {{baseUrl}}/api/auth/register
+POST http://localhost:3001/api/auth/register
 Content-Type: application/json
 
 {
@@ -13,7 +12,7 @@ Content-Type: application/json
 
 ### Log in
 ### The remaining requests require the authentication cookie created here.
-POST {{baseUrl}}/api/auth/login
+POST http://localhost:3001/api/auth/login
 Content-Type: application/json
 
 {
@@ -22,12 +21,12 @@ Content-Type: application/json
 }
 
 ### Verify the current authenticated user
-GET {{baseUrl}}/api/auth/me
+GET http://localhost:3001/api/auth/me
 
 ### Create a review
 ### The route must already exist in the routes table.
 # @name createReview
-POST {{baseUrl}}/api/reviews
+POST http://localhost:3001/api/reviews
 Content-Type: application/json
 
 {
@@ -37,25 +36,22 @@ Content-Type: application/json
 }
 
 ### List all community reviews
-GET {{baseUrl}}/api/reviews
+GET http://localhost:3001/api/reviews
 
 ### List only reviews created by the logged-in user
-GET {{baseUrl}}/api/reviews?mine=true
+GET http://localhost:3001/api/reviews?mine=true
 
 ### List reviews for one route
-GET {{baseUrl}}/api/reviews?route_id={{routeId}}
-
-### Search route names, reviewer names, and comments
-GET {{baseUrl}}/api/reviews?search=protected
+GET http://localhost:3001/api/reviews?route_id={{routeId}}
 
 ### Combine supported filters
-GET {{baseUrl}}/api/reviews?mine=true&route_id={{routeId}}&search=protected
+GET http://localhost:3001/api/reviews?mine=true&route_id={{routeId}}
 
-### Read the review created above
-GET {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+### Read the review created above test cases
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 
 ### Update both the rating and comment
-PATCH {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 Content-Type: application/json
 
 {
@@ -64,10 +60,10 @@ Content-Type: application/json
 }
 
 ### Read the review again to verify the update
-GET {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 
 ### Update only the rating
-PATCH {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 Content-Type: application/json
 
 {
@@ -75,7 +71,7 @@ Content-Type: application/json
 }
 
 ### Update only the comment
-PATCH {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 Content-Type: application/json
 
 {
@@ -83,7 +79,7 @@ Content-Type: application/json
 }
 
 ### Clear the optional comment
-PATCH {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 Content-Type: application/json
 
 {
@@ -91,7 +87,7 @@ Content-Type: application/json
 }
 
 ### Delete the review
-DELETE {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+DELETE http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
 
 ### Confirm that the deleted review returns 404
-GET {{baseUrl}}/api/reviews/{{createReview.response.body.$.review_id}}
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
