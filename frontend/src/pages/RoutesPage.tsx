@@ -12,7 +12,10 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
-  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number } | null >(null);
+  const [alternatives, setAlternatives] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number; avoidedHazards: boolean }[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  // derived, not its own state - everywhere below that reads directions.X just keeps working
+  const directions = selectedIndex !== null ? alternatives[selectedIndex] : null;
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -94,7 +97,15 @@ export default function RoutesPage({ user }: {user: User | null}) {
         setLoading(true);
         setError('');
         const result = await routeApi.directions(currentStart, currentDestination);
-        setDirections(result);
+        setAlternatives(result.alternatives);
+
+        // default to whichever alternative scored safest, user can still pick a different one below
+        const safestIndex = result.alternatives.reduce(
+          (bestI: number, alt: typeof result.alternatives[number], i: number) =>
+            alt.safetyScore > result.alternatives[bestI].safetyScore ? i : bestI,
+          0
+        );
+        setSelectedIndex(result.alternatives.length > 0 ? safestIndex : null);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to compute directions');
       } finally {
@@ -191,6 +202,25 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <p><strong>Start: {start ? `${start.label}` : <span className="text-muted">Not set</span>}</strong></p>
         <p><strong>Destination: {destination ? `${destination.label}` : <span className="text-muted">Not set</span>}</strong></p>
       </div>
+      {alternatives.length > 1 && (
+        // route picker - clicking a card just swaps selectedIndex, which drives the derived `directions` above
+        <div className="route-search">
+          {alternatives.map((alt, i) => (
+            <button
+              key={i}
+              type="button"
+              className={i === selectedIndex ? 'route-card selected' : 'route-card'}
+              onClick={() => setSelectedIndex(i)}
+            >
+              <p><strong>Route {i + 1}{alt.avoidedHazards ? ' — Avoids nearby hazards' : ''}</strong></p>
+              <p className="text-muted">
+                {(alt.distance / 1000).toFixed(2)} km · {Math.round(alt.duration / 60)} min · {Math.round(alt.elevation)} m elevation · Safety {alt.safetyScore}/100
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
       {directions && (
         <>
           <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Elevation Gain: {Math.round(directions.elevation)} m · Safety Score: {directions.safetyScore}/100.00</p>
