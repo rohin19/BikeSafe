@@ -61,8 +61,11 @@ hazardsRouter.get('/:id', async (req, res) => {
     try {
         const hazardID = req.params.id;
         // add hazard id validation
-        const result = await pool.query('SELECT * FROM hazards WHERE hazard_id = $1', [hazardID])
-        console.log("Successful retrieval")
+        const result = await pool.query('SELECT * FROM hazards WHERE hazard_id = $1', [hazardID]);
+        if (result.rows.length === 0 ) {
+            return res.status(404).json({ error: 'Hazard not found!' });
+        }
+        //console.log("Successful retrieval");
         return res.status(200).json(result.rows)
     } catch (err) {
         console.error('Error retrieving hazard by id: ', err)

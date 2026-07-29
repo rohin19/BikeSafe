@@ -1,18 +1,19 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import 'leaflet/dist/leaflet.css';
-import type { MapProps } from '../types';
+import type { MapProps, RouteDisplay } from '../types';
 import { renderToStaticMarkup } from "react-dom/server";
 import StationPopup from "./StationPopup";
 import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], harzards = [], onBoundsChange}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
-
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const onMapClickRef = useRef(onMapClick);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -32,9 +33,11 @@ export default function Map ({
     ).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
+    const routeLayer = L.layerGroup().addTo(map); 
 
     leafletMapRef.current = map;
     markersLayerRef.current = markersLayer;
+    routeLayerRef.current = routeLayer;
 
     function updateBounds() {
       const bounds = map.getBounds();
@@ -46,14 +49,21 @@ export default function Map ({
         });
     }
 
+    function handleClick(e: L.LeafletMouseEvent) {
+      onMapClickRef.current?.(e.latlng.lat, e.latlng.lng); // read from ref, not the closed-over prop
+    }
+
     updateBounds();
     map.on("moveend", updateBounds);
+    map.on("click", handleClick);
 
     return () => {
       map.off("moveend", updateBounds);
+      map.off("click", handleClick);
       map.remove();
       leafletMapRef.current = null;
       markersLayerRef.current = null;
+      routeLayerRef.current = null;
     };
   }, []);
 
@@ -114,7 +124,7 @@ export default function Map ({
         .addTo(markersLayer);
     });
 
-    harzards.forEach((hazard) => {
+    hazards.forEach((hazard) => {
       const popupHtml = renderToStaticMarkup(<HazardPopup hazard={hazard} />);
 
       const marker = L.marker([hazard.latitude, hazard.longitude], { icon: hazardIcon })
@@ -122,7 +132,46 @@ export default function Map ({
         .addTo(markersLayer);
     });
 
-  }, [stations, freeBikes, harzards]);
+  }, [stations, freeBikes, hazards]);
+
+  // keep onMapClickref point at the latest onMapClick, so the click listener (registered once on mount) always calls current logic
+  useEffect(() => {
+    onMapClickRef.current = onMapClick;
+  }, [onMapClick]);
+
+  useEffect(() => {
+    // draws route markers
+    const routeLayer = routeLayerRef.current; // this layer for routes and start/end markers
+    if (!routeLayer) return;
+    
+    routeLayer.clearLayers();
+    if (!route) return;
+
+    if (route.start) {
+      L.marker([route.start.lat, route.start.lon])
+        .bindPopup(route.start.label)
+        .addTo(routeLayer);
+    }
+
+    if (route.destination) {
+      L.marker([route.destination.lat, route.destination.lon])
+        .bindPopup(route.destination.label)
+        .addTo(routeLayer);
+    }
+
+    if (route.path.length > 0) {
+      L.polyline(
+        route.path.map((p) => [p.lat, p.lon] as [number, number]),
+        { color: "blue", weight: 4 },
+      ).addTo(routeLayer);
+    }
+  }, [route]);
+
+  // pans/zooms the map to a point on demand (e.g. when a search result is selected)
+  useEffect(() => {
+    if (!flyTo || !leafletMapRef.current) return;
+    leafletMapRef.current.flyTo([flyTo.lat, flyTo.lon], 15);
+  }, [flyTo]);
 
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>

@@ -48,7 +48,7 @@ function App() {
           <Route path="/" element={<Home user={user} />}/>
           <Route path="/hazards" element={<Hazards user={user} />}/>
           <Route path="/hazards/new" element={<ReportHazard user={user} />}/>
-          <Route path="/routes" element={<RoutesPage/>}/>
+          <Route path="/routes" element={<RoutesPage user={user} />}/>
           <Route path="/bikeshare" element={<BikeSharePage />}/>
           <Route path='/admin' element={<Admin user={user} />}/>
           <Route path="/profile" element={<ProfilePage user={user} onUserChange={setUser}/>}/>
