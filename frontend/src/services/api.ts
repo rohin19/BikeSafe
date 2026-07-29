@@ -1,4 +1,4 @@
-import type { User, Hazard, NewHazard, HazardStats, Route, NewRouteLog, NewRouteReview } from '../types'
+import type { User, Hazard, NewHazard, HazardStats, Route, NewReview, ReviewFilters, UpdateReview } from '../types'
 
 async function apiRequest(path:string, options: RequestInit = {}) {
     // includes credential cuz authentication uses http only cookie
@@ -94,37 +94,25 @@ export const bikeShareApi = {
     freeBikes: (queryParams: string) => apiRequest(`/api/bikeShare/lime/freeBikes?${queryParams}`),
 }
 
-export const routeLogApi = {
-  list: (filters: { streets?: string; mine?: boolean; } = {}) => {
+export const reviewApi = {
+  list: (filters: ReviewFilters = {}) => {
     const params = new URLSearchParams();
-
-    if (filters.streets?.trim()) {
-      params.set('streets', filters.streets.trim());
-    }
-
-    if (filters.mine) {
-      params.set('mine', 'true');
-    }
-
+    if (filters.search?.trim()) { params.set('search', filters.search.trim()); }
+    if (filters.mine) { params.set('mine', 'true'); }
+    if (filters.routeId) { params.set('route_id', String(filters.routeId)); }
     const query = params.toString();
-
-    return apiRequest(`/api/route-logs${query ? `?${query}` : ''}`);
+    return apiRequest(`/api/reviews${query ? `?${query}` : ''}`);
   },
-
-  get: (routeLogId: number) =>
-    apiRequest(`/api/route-logs/${routeLogId}`),
-
-    create: (routeLog: NewRouteLog) =>
-        apiRequest('/api/route-logs', {
-            method: 'POST',
-            body: JSON.stringify(routeLog)
-        }
-    ),
-
-    addReview: (routeLogId: number, review: NewRouteReview) =>
-        apiRequest(`/api/route-logs/${routeLogId}/reviews`, {
-            method: 'POST',
-            body: JSON.stringify(review),
-        }
-    )
+  get: (reviewId: number) => apiRequest(`/api/reviews/${reviewId}`),
+  create: (review: NewReview) => apiRequest('/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify(review)
+    }
+  ),
+  update: (reviewId: number, review: UpdateReview) => apiRequest(`/api/reviews/${reviewId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(review)
+    }
+  ),
+  remove: (reviewId: number) => apiRequest(`/api/reviews/${reviewId}`, { method: 'DELETE' })
 };

@@ -151,3 +151,38 @@ export interface MapProps {
 }
 
 export type PickingMode = 'start' | 'destination';
+
+
+// Joined route information returned by GET /api/reviews.
+export interface CommunityReview {
+  review_id: number;
+  route_id: number;
+  user_id: number | null;
+  user_name: string;
+  review_rating: number;
+  comment: string | null;
+  created_at: string;
+  start_name: string;
+  destination_name: string;
+  elevation: number;
+  distance: number;
+  duration: number;
+  safety_score: number;
+}
+
+export interface NewReview {
+  route_id: number;
+  review_rating: number;
+  comment?: string | null;
+}
+
+export interface UpdateReview {
+  review_rating?: number;
+  comment?: string | null;
+}
+
+export interface ReviewFilters {
+  search?: string;
+  mine?: boolean;
+  routeId?: number;
+}

@@ -339,3 +339,11 @@
 .search-result-item:hover {
   background: var(--accent-blue-bg);
 }
+  
+h1 {
+  color: #f5f7ff;
+}
+
+h2 {
+  color: #f5f7ff;
+}

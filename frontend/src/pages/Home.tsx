@@ -47,7 +47,7 @@ export default function Home({ user }: {user: User}) {
       + Report a hazard
       </Link>
 
-      <Link to="/route-logs" className="button primary">
+      <Link to="/reviews" className="button primary">
         Ride logs & reviews
       </Link>
 

@@ -7,7 +7,7 @@ import Home from './pages/Home'
 import Hazards from './pages/Hazards'
 import ReportHazard from './pages/ReportHazard'
 import RoutesPage from './pages/RoutesPage'
-import RouteLogsPage from './pages/RouteLogsPage';
+import ReviewsPage from './pages/ReviewsPage';
 import BikeSharePage from './pages/BikeSharePage'
 import ProfilePage from './pages/ProfilePage'
 import { authApi } from './services/api'
@@ -49,7 +49,7 @@ function App() {
           <Route path="/hazards" element={<Hazards user={user} />}/>
           <Route path="/hazards/new" element={<ReportHazard user={user} />}/>
           <Route path="/routes" element={<RoutesPage user={user} />}/>
-          <Route path="/route-logs" element={<RouteLogsPage user={user} />}/>
+          <Route path="/reviews" element={<ReviewsPage user={user} />}/>
           <Route path="/bikeshare" element={<BikeSharePage />}/>
           <Route path="/profile" element={<ProfilePage user={user} onUserChange={setUser}/>}/>
         </Route>

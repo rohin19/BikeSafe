@@ -4,7 +4,7 @@ const NAV_ITEMS = [
     { to: '/', label: 'Home' },
     { to: '/hazards', label: 'Hazards' },
     { to: '/routes', label: 'Routes'},
-    { to: '/route-logs', label: 'Log & Review'},
+    { to: '/reviews', label: 'Log & Review'},
     { to: '/bikeshare', label: 'BikeShare' },
     { to: '/profile', label: 'Profile' }
 ]
