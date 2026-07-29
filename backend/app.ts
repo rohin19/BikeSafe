@@ -5,6 +5,7 @@ import authRouter from './routes/auth';
 import adminRouter from './routes/admin';
 import hazardsRouter from './routes/hazards';
 import bikeShareRouter from './routes/bikeShare';
+import reviewsRouter from './routes/reviews';
 import { pool } from './db';
 import cookieParser from 'cookie-parser';
 import routesRouter from './routes/routes';
@@ -27,6 +28,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/hazards', hazardsRouter);
 app.use('/api/bikeShare', bikeShareRouter); 
+app.use('/api/reviews', reviewsRouter);
 app.use('/api/routes', routesRouter);
 app.use('/api/routes/geocode', geocodeRouter);
 

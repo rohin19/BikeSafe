@@ -1,0 +1,93 @@
+@routeId = 1
+
+### Register a test user
+POST http://localhost:3001/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "email": "test123@example.com",
+  "password": "password123"
+}
+
+### Log in
+### The remaining requests require the authentication cookie created here.
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test123@example.com",
+  "password": "password123"
+}
+
+### Verify the current authenticated user
+GET http://localhost:3001/api/auth/me
+
+### Create a review
+### The route must already exist in the routes table.
+# @name createReview
+POST http://localhost:3001/api/reviews
+Content-Type: application/json
+
+{
+  "route_id": {{routeId}},
+  "review_rating": 4.5,
+  "comment": "Mostly protected bike lanes with one steep section."
+}
+
+### List all community reviews
+GET http://localhost:3001/api/reviews
+
+### List only reviews created by the logged-in user
+GET http://localhost:3001/api/reviews?mine=true
+
+### List reviews for one route
+GET http://localhost:3001/api/reviews?route_id={{routeId}}
+
+### Combine supported filters
+GET http://localhost:3001/api/reviews?mine=true&route_id={{routeId}}
+
+### Read the review created above test cases
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+
+### Update both the rating and comment
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+Content-Type: application/json
+
+{
+  "review_rating": 4.0,
+  "comment": "Comfortable during off-peak hours."
+}
+
+### Read the review again to verify the update
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+
+### Update only the rating
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+Content-Type: application/json
+
+{
+  "review_rating": 3.5
+}
+
+### Update only the comment
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+Content-Type: application/json
+
+{
+  "comment": "Updated comment only."
+}
+
+### Clear the optional comment
+PATCH http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+Content-Type: application/json
+
+{
+  "comment": null
+}
+
+### Delete the review
+DELETE http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}
+
+### Confirm that the deleted review returns 404
+GET http://localhost:3001/api/reviews/{{createReview.response.body.$.review_id}}

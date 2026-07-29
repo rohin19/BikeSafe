@@ -1,4 +1,4 @@
-import type { User, Hazard, NewHazard, HazardStats, Route } from '../types'
+import type { User, Hazard, NewHazard, HazardStats, Route, NewReview, ReviewFilters, UpdateReview } from '../types'
 
 async function apiRequest(path:string, options: RequestInit = {}) {
     // includes credential cuz authentication uses http only cookie
@@ -93,6 +93,29 @@ export const bikeShareApi = {
     stations: (queryParams: string) => apiRequest(`/api/bikeShare/lime/stations?${queryParams}`),
     freeBikes: (queryParams: string) => apiRequest(`/api/bikeShare/lime/freeBikes?${queryParams}`),
 }
+
+export const reviewApi = {
+  list: (filters: ReviewFilters = {}) => {
+    const params = new URLSearchParams();
+    if (filters.search?.trim()) { params.set('search', filters.search.trim()); }
+    if (filters.mine) { params.set('mine', 'true'); }
+    if (filters.routeId) { params.set('route_id', String(filters.routeId)); }
+    const query = params.toString();
+    return apiRequest(`/api/reviews${query ? `?${query}` : ''}`);
+  },
+  get: (reviewId: number) => apiRequest(`/api/reviews/${reviewId}`),
+  create: (review: NewReview) => apiRequest('/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify(review)
+    }
+  ),
+  update: (reviewId: number, review: UpdateReview) => apiRequest(`/api/reviews/${reviewId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(review)
+    }
+  ),
+  remove: (reviewId: number) => apiRequest(`/api/reviews/${reviewId}`, { method: 'DELETE' })
+};
 
 export const adminApi = {
     listUsers: async (): Promise<User[]> => {
