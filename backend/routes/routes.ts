@@ -119,7 +119,7 @@ async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<
     for (const hazard of result.rows) {
         const dist = minDistanceToPath(hazard.latitude, hazard.longitude, path);
         if (dist <= HAZARD_PROXIMITY_METERS) {
-            penalty += hazard.severity * 5;
+            penalty += hazard.severity * 3;
         }
     }
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { RoutePoint, PickingMode, User, Route } from '../types';
+import type { RoutePoint, PickingMode, User, Route, Hazard } from '../types';
 import Map from '../components/Map';
-import { geocodeApi, routeApi } from '../services/api';
+import { geocodeApi, routeApi, hazardApi } from '../services/api';
 
 export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
@@ -22,6 +22,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
   const [flyTo, setFlyTo] = useState<{ lat: number; lon: number } | null>(null);
+  const [hazards, setHazards] = useState<Hazard[]>([]);
 
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
@@ -157,6 +158,13 @@ export default function RoutesPage({ user }: {user: User | null}) {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load all routes'));
   }, [saved, user]);
 
+  // loads hazards once so they show up on the map while planning a route
+  useEffect(() => {
+    hazardApi.list()
+      .then(setHazards)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load hazards'));
+  }, []);
+
   return (
     <div className="page">
       <h1>Routes</h1>
@@ -240,7 +248,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <Map
           onMapClick={handleMapClick}
           route={{ start, destination, path: directions?.path ?? [] }}
-          flyTo={flyTo}></Map>
+          flyTo={flyTo}
+          hazards={hazards}></Map>
       </div>
 
       <div className="page">
