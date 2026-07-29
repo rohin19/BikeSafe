@@ -116,3 +116,23 @@ export const reviewApi = {
   ),
   remove: (reviewId: number) => apiRequest(`/api/reviews/${reviewId}`, { method: 'DELETE' })
 };
+
+export const adminApi = {
+    listUsers: async (): Promise<User[]> => {
+        const res = await fetch('api/admin/users', {credentials: 'include'});
+        if (!res.ok) throw new Error('Failed to fetch users');
+        return res.json();
+    },
+
+    deleteUser: async (userID: number): Promise<void> => {
+        const res = await fetch(`api/admin/users/${userID}`, {method: 'DELETE', credentials: 'include'});
+        if (!res.ok) throw new Error('Failed to delete user');
+    },
+
+    updateRole: async (userId: number, role: string): Promise<User> => {
+        const res = await fetch(`/api/admin/users/${userId}/role`, {method: 'PATCH', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ role }),
+    });
+    if (!res.ok) throw new Error('Failed to update Role');
+    return res.json();
+    }
+};

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import type { User } from '../types'
 
 const NAV_ITEMS = [
     { to: '/', label: 'Home' },
@@ -6,10 +7,11 @@ const NAV_ITEMS = [
     { to: '/routes', label: 'Routes'},
     { to: '/reviews', label: 'Log & Review'},
     { to: '/bikeshare', label: 'BikeShare' },
+    
     { to: '/profile', label: 'Profile' }
 ]
 
-export default function BottomNav() {
+export default function BottomNav({ user }: {user: User | null}) {
     return (
         <nav className="bottom-nav">
             {NAV_ITEMS.map((item) => (
@@ -26,6 +28,13 @@ export default function BottomNav() {
                     <span>{item.label}</span>
                 </NavLink>
             ))}
+
+            {/*Only visible to Admin */}
+            {user?.role === 'admin' && (
+                <NavLink to="/admin" className={({ isActive }) => (isActive ? 'nav-item active' : 'nav-item')}>
+                    <span>Admin</span>
+                </NavLink>
+            )}
         </nav>
     )
 }

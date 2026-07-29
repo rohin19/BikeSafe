@@ -10,6 +10,7 @@ import RoutesPage from './pages/RoutesPage'
 import ReviewsPage from './pages/ReviewsPage';
 import BikeSharePage from './pages/BikeSharePage'
 import ProfilePage from './pages/ProfilePage'
+import Admin from './pages/Admin'
 import { authApi } from './services/api'
 import type { User } from './types'
 
@@ -44,13 +45,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout/>}>
+        <Route element={<AppLayout user={user}/>}>
           <Route path="/" element={<Home user={user} />}/>
           <Route path="/hazards" element={<Hazards user={user} />}/>
           <Route path="/hazards/new" element={<ReportHazard user={user} />}/>
           <Route path="/routes" element={<RoutesPage user={user} />}/>
           <Route path="/reviews" element={<ReviewsPage user={user} />}/>
           <Route path="/bikeshare" element={<BikeSharePage />}/>
+          <Route path='/admin' element={<Admin user={user} />}/>
           <Route path="/profile" element={<ProfilePage user={user} onUserChange={setUser}/>}/>
         </Route>
         <Route path="*" element={<Navigate to="/" replace/>}/>
