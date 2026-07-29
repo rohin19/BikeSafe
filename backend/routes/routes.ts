@@ -128,7 +128,7 @@ async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<
 }
 
 // ---- Hazard-avoidance helpers ----
-const HAZARD_AVOID_BUFFER_DEG = 0.0004; // rough ~30-40m square around a hazard, no trig needed, just a fixed offset
+const HAZARD_AVOID_BUFFER_DEG = 0.0006; // bumped up so this reliably clears computeSafetyScore's 50m threshold too, not just the polygon itself
 
 // builds a simple rectangle "avoid" shape around one hazard point (closes the ring by repeating the first point)
 function hazardToPolygon(lat: number, lon: number): number[][] {
