@@ -8,8 +8,8 @@ Content-Type: application/json
 {
   "user_id": 1,
   "title": "Cement truck blocking bike lane",
-  "description": "Cement truck for roadway construction is parked in the northbound bike lane",
-  "category": "construction",
+  "description": "Cement truck for roadway Construction is parked in the northbound bike lane",
+  "category": "Construction",
   "severity": 4,
   "latitude": 49.2827,
   "longitude": -123.1207
@@ -31,7 +31,7 @@ Content-Type: application/json
 {
     "title": "Construction blocking eastbound bike lane",
     "description": "Equipment partially blocks the eastbound bike lane.",
-    "category": "construction",
+    "category": "Construction",
     "current_status": "approved",
     "severity": 4,
     "latitude": 49.2827,
@@ -42,3 +42,230 @@ Content-Type: application/json
 ###
 
 DELETE http://localhost:3001/api/hazards/9
+
+
+
+### Validation tests --> ensure logged in as admin
+
+
+
+### Create a valid hazard
+### Expected: 200 OK
+# @name createHazard
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Validation test hazard",
+  "description": "Temporary hazard used for route validation tests.",
+  "category": "Construction",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject a non-numeric hazard ID
+### Expected: 400 Bad Request
+GET http://localhost:3001/api/hazards/not-a-number
+
+### Reject a negative hazard ID
+### Expected: 400 Bad Request
+GET http://localhost:3001/api/hazards/-1
+
+### Reject zero as a hazard ID
+### Expected: 400 Bad Request
+GET http://localhost:3001/api/hazards/0
+
+### Reject a decimal hazard ID
+### Expected: 400 Bad Request
+GET http://localhost:3001/api/hazards/1.5
+
+### Return 404 for a valid ID that does not exist
+### Expected: 404 Not Found
+GET http://localhost:3001/api/hazards/999999999
+
+### Reject a missing title
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "description": "The title is missing.",
+  "category": "Construction",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject a whitespace-only title
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "   ",
+  "description": "The title only contains spaces.",
+  "category": "Construction",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject a missing description
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Missing description",
+  "category": "Construction",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject an unsupported category
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Invalid category",
+  "description": "This category is not part of the allowed list.",
+  "category": "flood",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject severity below 1
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Severity too low",
+  "description": "Severity zero should be rejected.",
+  "category": "Other",
+  "severity": 0,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject severity above 5
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Severity too high",
+  "description": "Severity six should be rejected.",
+  "category": "Other",
+  "severity": 6,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject a decimal severity
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Decimal severity",
+  "description": "Severity must be a whole number.",
+  "category": "Other",
+  "severity": 2.5,
+  "latitude": 49.2827,
+  "longitude": -123.1207
+}
+
+### Reject latitude above 90
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Invalid latitude",
+  "description": "Latitude is outside its valid range.",
+  "category": "Road Condition",
+  "severity": 2,
+  "latitude": 91,
+  "longitude": -123.1207
+}
+
+### Reject longitude below -180
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Invalid longitude",
+  "description": "Longitude is outside its valid range.",
+  "category": "Road Condition",
+  "severity": 2,
+  "latitude": 49.2827,
+  "longitude": -181
+}
+
+### Reject a non-numeric latitude
+### Expected: 400 Bad Request
+POST http://localhost:3001/api/hazards
+Content-Type: application/json
+
+{
+  "title": "Non-numeric latitude",
+  "description": "Latitude must be numeric.",
+  "category": "Road Condition",
+  "severity": 2,
+  "latitude": "Vancouver",
+  "longitude": -123.1207
+}
+
+### Reject an invalid PATCH hazard ID
+### Expected: 400 Bad Request
+PATCH http://localhost:3001/api/hazards/not-a-number
+Content-Type: application/json
+
+{
+  "title": "Updated hazard",
+  "description": "Updated description.",
+  "category": "Construction",
+  "current_status": "reported",
+  "severity": 3,
+  "latitude": 49.2827,
+  "longitude": -123.1207,
+  "image_url": null
+}
+
+### Accept a valid hazard update
+### Expected: 200 OK
+PATCH http://localhost:3001/api/hazards/{{createHazard.response.body.$[0].hazard_id}}
+Content-Type: application/json
+
+{
+  "title": "Updated validation hazard",
+  "description": "The valid test hazard has been updated.",
+  "category": "Construction",
+  "current_status": "in_progress",
+  "severity": 4,
+  "latitude": 49.2827,
+  "longitude": -123.1207,
+  "image_url": null
+}
+
+### Reject an invalid DELETE hazard ID
+### Expected: 400 Bad Request
+DELETE http://localhost:3001/api/hazards/not-a-number
+
+### Return 404 when deleting a hazard that does not exist
+### Expected: 404 Not Found
+DELETE http://localhost:3001/api/hazards/999999999
+
+### Delete the valid test hazard
+### Expected: 200 OK
+DELETE http://localhost:3001/api/hazards/{{createHazard.response.body.$[0].hazard_id}}
+
+### Confirm the deleted hazard no longer exists
+### Expected: 404 Not Found
+GET http://localhost:3001/api/hazards/{{createHazard.response.body.$[0].hazard_id}}

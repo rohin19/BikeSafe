@@ -6,7 +6,7 @@
 Group 10: Elton Chen, Tim Supan, Rohin Aulakh, Dat Chau, Yu Wu
 
 # Current Setup
-Deployed URL - http://34.187.197.133/
+Deployed URL - http://34.187.197.133/  
 Both DB and Web-app deployed on GCP VM instances
 No container system used so far
 
