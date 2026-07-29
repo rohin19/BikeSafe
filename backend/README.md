@@ -83,7 +83,7 @@ curl.exe -X GET http://localhost:3001/api/hazards/stats
 ```bash
 curl.exe -X POST http://localhost:3001/api/hazards ^
 -H "Content-Type: application/json" ^
--d "{\"user_id\":1,\"title\":\"Cement truck blocking bike lane\",\"description\":\"Cement truck for roadway construction is parked in the northbound bike lane\",\"category\":\"construction\",\"severity\":4,\"latitude\":49.2827,\"longitude\":-123.1207}"
+-d "{\"user_id\":1,\"title\":\"Cement truck blocking bike lane\",\"description\":\"Cement truck for roadway construction is parked in the northbound bike lane\",\"category\":\"Construction\",\"severity\":4,\"latitude\":49.2827,\"longitude\":-123.1207}"
 ```
 
 ---
@@ -93,7 +93,7 @@ curl.exe -X POST http://localhost:3001/api/hazards ^
 ```bash
 curl.exe -X PATCH http://localhost:3001/api/hazards/9 ^
 -H "Content-Type: application/json" ^
--d "{\"title\":\"Construction blocking eastbound bike lane\",\"description\":\"Equipment partially blocks the eastbound bike lane.\",\"category\":\"construction\",\"current_status\":\"approved\",\"severity\":4,\"latitude\":49.2827,\"longitude\":-123.1207,\"image_url\":null}"
+-d "{\"title\":\"Construction blocking eastbound bike lane\",\"description\":\"Equipment partially blocks the eastbound bike lane.\",\"category\":\"Construction\",\"current_status\":\"approved\",\"severity\":4,\"latitude\":49.2827,\"longitude\":-123.1207,\"image_url\":null}"
 ```
 
 Replace `9` with the hazard ID you wish to update.
