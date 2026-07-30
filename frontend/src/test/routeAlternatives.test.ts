@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { pickSafestIndex, type RouteAlternative } from './RoutesPage';
+import { pickSafestIndex, type RouteAlternative } from '../pages/routeAlternatives';
 
 describe('pickSafestIndex', () => {
   function alt(safetyScore: number): RouteAlternative {

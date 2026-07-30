@@ -2,26 +2,8 @@ import { useState, useEffect } from 'react';
 import type { RoutePoint, PickingMode, User, Route, Hazard } from '../types';
 import Map from '../components/Map';
 import { geocodeApi, routeApi, hazardApi } from '../services/api';
+import { pickSafestIndex, type RouteAlternative } from './routeAlternatives';
 import '../styles/RoutesPage.css'
-
-export interface RouteAlternative {
-  path: { lat: number; lon: number }[];
-  distance: number;
-  duration: number;
-  safetyScore: number;
-  elevation: number;
-  avoidedHazards: boolean;
-}
-
-// picks the index of whichever alternative scored safest; null when there's nothing to pick from.
-// pulled out as a standalone function so this logic is unit-testable without rendering the page
-export function pickSafestIndex(alternatives: RouteAlternative[]): number | null {
-  if (alternatives.length === 0) return null;
-  return alternatives.reduce(
-    (bestI, alt, i) => (alt.safetyScore > alternatives[bestI]!.safetyScore ? i : bestI),
-    0
-  );
-}
 
 export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
