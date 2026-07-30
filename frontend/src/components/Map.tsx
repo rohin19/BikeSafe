@@ -8,7 +8,7 @@ import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo, selectedPoint}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
@@ -145,6 +145,11 @@ export default function Map ({
     if (!routeLayer) return;
     
     routeLayer.clearLayers();
+    if (selectedPoint) {
+      L.marker([selectedPoint.lat, selectedPoint.lon])
+        .bindPopup('Selected hazard location')
+        .addTo(routeLayer)
+    }
     if (!route) return;
 
     if (route.start) {
@@ -165,7 +170,7 @@ export default function Map ({
         { color: "blue", weight: 4 },
       ).addTo(routeLayer);
     }
-  }, [route]);
+  }, [route, selectedPoint]);
 
   // pans/zooms the map to a point on demand (e.g. when a search result is selected)
   useEffect(() => {
