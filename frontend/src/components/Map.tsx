@@ -67,6 +67,7 @@ export default function Map ({
       leafletMapRef.current = null;
       markersLayerRef.current = null;
       routeLayerRef.current = null;
+      liveLocationLayerRef.current = null;
     };
   }, []);
 
