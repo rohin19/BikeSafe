@@ -269,7 +269,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
           >{saved ? 'Saved!' : 'Save Route'}</button>
           <button
             type="button"
-            className={navigating ? 'button danger' : 'button secondary'}
+            className={navigating ? 'button secondary stop-nav' : 'button secondary'}
             onClick={() => setNavigating((prev) => !prev)}
           >{navigating ? 'Stop Navigation' : 'Start Navigation'}</button>
         </>

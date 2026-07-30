@@ -134,6 +134,16 @@
    cursor: not-allowed;
  }
 
+/* red coloring for the "Stop Navigation" state - keeps .secondary's pill layout, only overrides color */
+.button.secondary.stop-nav {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.button.secondary.stop-nav:hover {
+  background: var(--accent-red-bg);
+}
+
 /* ============================================================
    Home.jsx
    Map placeholder card on the Home dashboard.
