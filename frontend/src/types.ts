@@ -152,6 +152,7 @@ export interface MapProps {
         lat: number;
         lon: number
     } | null
+    liveLocation?: { lat: number; lon: number } | null;
 }
 
 export type PickingMode = 'start' | 'destination';

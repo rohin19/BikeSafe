@@ -24,6 +24,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
   const [flyTo, setFlyTo] = useState<{ lat: number; lon: number } | null>(null);
   const [hazards, setHazards] = useState<Hazard[]>([]);
+  const [navigating, setNavigating] = useState(false);
+  const [liveLocation, setLiveLocation] = useState<{ lat: number; lon: number } | null>(null);
 
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
@@ -173,6 +175,26 @@ export default function RoutesPage({ user }: {user: User | null}) {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load hazards'));
   }, []);
 
+  // live navigation: only watches position while navigating is on, so we don't prompt for location before the user asks
+  // no external api needed, this geolocation interface is part of the browser: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition
+  // NOTe: requires HTTPS (or localhost) + user permission to activate this feature, won't work on plain HTTP prod deployment
+  useEffect(() => {
+    if (!navigating) {
+      setLiveLocation(null);
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setLiveLocation({ lat: position.coords.latitude, lon: position.coords.longitude });
+      },
+      () => setError('Unable to track your location'),
+      { enableHighAccuracy: true }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, [navigating]);
+
   return (
     <div className="routes-page">
       <header className="routes-header">
@@ -303,6 +325,18 @@ export default function RoutesPage({ user }: {user: User | null}) {
               >
                 {saved ? 'Saved!' : 'Save route'}
               </button>
+
+              <button
+                type="button"
+                className={
+                  navigating
+                    ? 'button secondary stop-nav'
+                    : 'button secondary'
+                }
+                onClick={() => setNavigating((prev) => !prev)}
+              >
+                {navigating ? 'Stop Navigation' : 'Start Navigation'}
+              </button>
             </div>
           )}
 
@@ -326,6 +360,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
               }}
               flyTo={flyTo}
               hazards={hazards}
+              liveLocation={liveLocation}
             />
           </div>
         </section>
