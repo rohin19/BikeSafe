@@ -177,6 +177,24 @@ export default function Map ({
     leafletMapRef.current.flyTo([flyTo.lat, flyTo.lon], 15);
   }, [flyTo]);
 
+  // draws/moves the live navigation position marker, on its own layer so it doesn't get wiped by route redraws
+  useEffect(() => {
+    const liveLocationLayer = liveLocationLayerRef.current;
+    if (!liveLocationLayer) return;
+
+    liveLocationLayer.clearLayers();
+    if (!liveLocation) return;
+
+    const liveIcon = L.divIcon({
+      className: "clean-map-icon",
+      html: `<div class="marker-dot live"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+
+    L.marker([liveLocation.lat, liveLocation.lon], { icon: liveIcon }).addTo(liveLocationLayer);
+  }, [liveLocation]);
+
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
   );
