@@ -176,6 +176,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
 
   // live navigation: only watches position while navigating is on, so we don't prompt for location before the user asks
   // no external api needed, this geolocation interface is part of the browser: https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/watchPosition
+  // NOTe: requires HTTPS (or localhost) + user permission to activate this feature, won't work on plain HTTP prod deployment
   useEffect(() => {
     if (!navigating) {
       setLiveLocation(null);
@@ -282,7 +283,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
           onMapClick={handleMapClick}
           route={{ start, destination, path: directions?.path ?? [] }}
           flyTo={flyTo}
-          hazards={hazards}></Map>
+          hazards={hazards}
+          liveLocation={liveLocation}></Map>
       </div>
 
       <div className="page">
