@@ -15,11 +15,12 @@ import spec from './swagger';
 
 // create express app
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cookieParser());
 
 // development CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'http://34.187.197.133';
+const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://34.187.197.133';
 
 app.use(cors({
   origin: allowedOrigins,

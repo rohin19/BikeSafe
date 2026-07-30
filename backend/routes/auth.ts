@@ -14,7 +14,7 @@ function setAuthCookie(res: Response, payload: JwtPayload): void {
     res.cookie('token', token, {
         httpOnly: true,
         sameSite: 'lax', // dont attach this cookie to reqs originating from diff website (strict|lax|none)
-        secure: false,
+        secure: process.env.NODE_ENV === 'production', // send cookie over HTTPS in prod only, HTTP for dev
         maxAge: SESSION_DURATION_MS
     }); 
 }
