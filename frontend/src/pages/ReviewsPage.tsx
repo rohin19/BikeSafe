@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState,type FormEvent } from 'react';
 import type { CommunityReview, Route, User } from '../types';
 import ReviewForm from '../components/ReviewForm';
 import { routeApi, reviewApi } from '../services/api';
+import '../styles/ReviewsPage.css'
 
 export default function ReviewsPage({ user }: { user: User }) {
   const [reviews, setReviews] = useState<CommunityReview[]>([]);
@@ -81,93 +82,149 @@ export default function ReviewsPage({ user }: { user: User }) {
   }
 
   return (
-    <div className="page route-logs-page">
-      <div className="Header & review section">
-        <div>
-          <h1>Community Reviews</h1>
-        </div>
+    <div className="reviews-page">
+      <header className="reviews-header">
+        <h1>Community Reviews</h1>
+      </header>
 
-        <button type="button" className="button primary" onClick={() => {
-            setEditingReview(null);
-            setShowForm((current) => !current);
-          }}
-        >
-          + Add review
-        </button>
-      </div>
+      <div className="reviews-layout">
+        <aside className="reviews-sidebar">
+          <form
+            className="reviews-search-panel"
+            onSubmit={handleSearch}
+          >
+            <label className="reviews-search-field">
+              Search
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Route, reviewer, or comment"
+              />
+            </label>
 
-      <form className="search-form card" onSubmit={handleSearch}>
-        <label>
-          Search by route, reviewer, or comment
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Central Park or smooth ride"/>
-        </label>
+            <label className="reviews-mine-filter">
+              <input
+                type="checkbox"
+                checked={onlyMine}
+                onChange={(event) => setOnlyMine(event.target.checked)}
+              />
+              My reviews only
+            </label>
 
-        <label>
-          <input type="checkbox" checked={onlyMine} onChange={(event) => setOnlyMine(event.target.checked)}/>
-          My reviews only
-        </label>
+            <div className="reviews-search-actions">
+              <button type="submit" className="button primary">
+                Search
+              </button>
 
-        <div className="Search section">
-          <button type="submit" className="button primary">
-            Search
+              <button
+                type="button"
+                className="button secondary"
+                onClick={clearSearch}
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+
+          <button
+            type="button"
+            className={
+              showForm || editingReview
+                ? 'button secondary reviews-add-button'
+                : 'button primary reviews-add-button'
+            }
+            onClick={() => {
+              setEditingReview(null)
+              setShowForm((current) => !current)
+            }}
+          >
+            {showForm || editingReview ? 'Close form' : '+ Add review'}
           </button>
-          <button type="button" className="button secondary" onClick={clearSearch}>
-            Clear
-          </button>
-        </div>
-      </form>
 
-      {error && <div className="card">{error}</div>}
+          {error && (
+            <div className="reviews-error" role="alert">
+              {error}
+            </div>
+          )}
 
-      {(showForm || editingReview) && (
-        <ReviewForm routes={routes} review={editingReview} onSaved={handleSaved} onCancel={() => {
-            setShowForm(false);
-            setEditingReview(null);
-          }}
-        />
-      )}
+          {(showForm || editingReview) && (
+            <ReviewForm
+              routes={routes}
+              review={editingReview}
+              onSaved={handleSaved}
+              onCancel={() => {
+                setShowForm(false)
+                setEditingReview(null)
+              }}
+            />
+          )}
+        </aside>
 
-      <section className="Reviews section">
-        <h2>Reviews Section</h2>
-        {reviews.length === 0 ? (<div className="card text-muted">No matching reviews found.</div>) : (
-          reviews.map((review) => (
-            <article className="card" key={review.review_id}>
-              <div className="card-header">
-                <div>
-                  <strong>
-                    {review.start_name} → {review.destination_name}
-                  </strong>
-                  <p className="text-muted">Reviewed by {review.user_name}</p>
-                </div>
+        <section className="reviews-feed">
+          <h2>Reviews</h2>
 
-                <strong>{review.review_rating.toFixed(1)} / 5</strong>
-              </div>
-
-              {review.comment && <p>{review.comment}</p>}
-
-              <p className="text-muted">
-                Route safety score: {review.safety_score.toFixed(1)} / 100
+          <div className="reviews-list">
+            {reviews.length === 0 ? (
+              <p className="reviews-empty">
+                No matching reviews found.
               </p>
-              
-              {review.user_id === user.user_id && (
-                <div className="route-log-actions">
-                  <button type="button" className="button secondary" onClick={() => {
-                      setShowForm(false);
-                      setEditingReview(review);
-                    }}
-                  >
-                    Edit
-                  </button>
+            ) : (
+              reviews.map((review) => (
+                <article
+                  className="community-review-card"
+                  key={review.review_id}
+                >
+                  <header className="community-review-header">
+                    <div>
+                      <strong>
+                        {review.start_name} → {review.destination_name}
+                      </strong>
 
-                  <button type="button" className="button secondary" onClick={() => handleDelete(review.review_id)}>
-                    Delete
-                  </button>
-                </div>
-              )}
-            </article>
-          ))
-        )}
-      </section>
+                      <p>Reviewed by {review.user_name}</p>
+                    </div>
+
+                    <span className="review-rating">
+                      {review.review_rating.toFixed(1)} / 5.0
+                    </span>
+                  </header>
+
+                  {review.comment && (
+                    <p className="review-comment">{review.comment}</p>
+                  )}
+
+                  <p className="review-safety">
+                    Route safety score:{' '}
+                    {review.safety_score.toFixed(1)} / 100.0
+                  </p>
+
+                  {review.user_id === user.user_id && (
+                    <div className="review-actions">
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => {
+                          setShowForm(false)
+                          setEditingReview(review)
+                        }}
+                      >
+                        Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        className="button secondary review-delete-button"
+                        onClick={() => handleDelete(review.review_id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </div>
-  );
+  )
 }
