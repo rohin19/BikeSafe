@@ -27,9 +27,8 @@ export default function Home({ user }: {user: User}) {
   if (error) return <div className="page">{error}</div>
 
   // see the figma draft but these can be used eventually in the jsx/tsx
-  const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000
-  const reportedToday = hazards.filter((h) => new Date(h.created_at).getTime() > oneDayAgo).length
-  const reportedByYou = hazards.filter((h) => h.user_id === user.user_id).length
+  const reportedToday = computeReportedToday(hazards)
+  const reportedByYou = computeReportedByYou(hazards, user.user_id)
   const topCategory = stats?.categories[0] // { category, count } or undefined
 
   return (
