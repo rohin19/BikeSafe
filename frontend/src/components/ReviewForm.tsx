@@ -79,22 +79,18 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
 
       <label className="review-form-field">
         Route
-        <select
-          value={routeId}
-          disabled={Boolean(review)}
-          onChange={(event) => setRouteId(Number(event.target.value))}
-        >
-          {sortedRoutes.map((route, index) => (
-            <option key={route.route_id} value={route.route_id}>
-              {route.start_name}
-              {' → '}
-              {route.destination_name}
-              {' '}
-              {index === 0
-                ? '(Most recent)'
-                : `(${formatRouteDate(route.created_at ?? '')})`}
-            </option>
-          ))}
+        <select value={routeId} disabled={Boolean(review)} onChange={(event) => setRouteId(Number(event.target.value))}>
+          {sortedRoutes.map(
+            (route, index) => (
+              <option key={route.route_id} value={route.route_id}>
+                {route.start_name}
+                {' -> '}
+                {route.destination_name}
+                {' '}
+                {index === 0 ? '(Most recent)' : `(${formatRouteDate(route.created_at ? route.created_at : '')})`}
+              </option>
+            )
+          )}
         </select>
       </label>
 
