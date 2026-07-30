@@ -84,7 +84,7 @@ routesRouter.post('/', async(req:Request, res: Response) => {
 const HAZARD_PROXIMITY_METERS = 50;
 
 // haversine formula: shortest distance between between two lat/lon points on a sphere, in meters (no, i did not come up with this function)
-function haversineDistanceMeters(lat1: number, lon1:number, lat2:number, lon2:number):number {
+export function haversineDistanceMeters(lat1: number, lon1:number, lat2:number, lon2:number):number {
 
     function toRad(deg: number): number {
         return (deg * Math.PI) / 180;
@@ -101,7 +101,7 @@ function haversineDistanceMeters(lat1: number, lon1:number, lat2:number, lon2:nu
 }
 
 // shortest distance from a point to any point along the route path
-function minDistanceToPath(lat: number, lon: number, path: {lat: number; lon:number}[]): number {
+export function minDistanceToPath(lat: number, lon: number, path: {lat: number; lon:number}[]): number {
     let min = Infinity;
     for (const point of path) {
         const dist = haversineDistanceMeters(lat, lon, point.lat, point.lon);
@@ -111,7 +111,7 @@ function minDistanceToPath(lat: number, lon: number, path: {lat: number; lon:num
 }
 
 // simple heuristic: start at 100, dock points for each hazard within HAZARD_PROXIMITY_METERES of the path, weighted by severity
-async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<number> {
+export async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<number> {
     const result = await pool.query('SELECT latitude, longitude, severity FROM hazards');
 
     let penalty = 0;
@@ -131,7 +131,7 @@ async function computeSafetyScore(path: { lat:number; lon:number; }[]): Promise<
 const HAZARD_AVOID_BUFFER_DEG = 0.0006; // bumped up so this reliably clears computeSafetyScore's 50m threshold too, not just the polygon itself
 
 // builds a simple rectangle "avoid" shape around one hazard point (closes the ring by repeating the first point)
-function hazardToPolygon(lat: number, lon: number): number[][] {
+export function hazardToPolygon(lat: number, lon: number): number[][] {
     return [
         [lon - HAZARD_AVOID_BUFFER_DEG, lat - HAZARD_AVOID_BUFFER_DEG],
         [lon + HAZARD_AVOID_BUFFER_DEG, lat - HAZARD_AVOID_BUFFER_DEG],
