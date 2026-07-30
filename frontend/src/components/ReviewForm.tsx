@@ -84,7 +84,7 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
             (route, index) => (
               <option key={route.route_id} value={route.route_id}>
                 {route.start_name}
-                {' → '}
+                {' -> '}
                 {route.destination_name}
                 {' '}
                 {index === 0 ? '(Most recent)' : `(${formatRouteDate(route.created_at ? route.created_at : '')})`}
