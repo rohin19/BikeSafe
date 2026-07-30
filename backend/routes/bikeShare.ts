@@ -3,19 +3,9 @@ import type { RawStationInfo, RawStationStatus, RawFreeBike, VehicleType, CleanS
 import NodeCache from 'node-cache';
 
 
-// auto discovery link Lime Vancouver: https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/gbfs.json
-
-// {"last_updated":1783796586,"ttl":0,"version":"2.2","data":{"en":{"feeds":
-// [{"name":"system_information","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/system_information"},
-// {"name":"station_information","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_information"},
-// {"name":"station_status","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_status"},
-// {"name":"free_bike_status","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status"},
-// {"name":"vehicle_types","url":"https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/vehicle_types"}]}}}
-
-
 const bikeShareRouter = Router();
 // Cache items for 45 seconds
-const bikeShareCache = new NodeCache({ stdTTL: 45});
+export const bikeShareCache = new NodeCache({ stdTTL: 45});
 
 
 // --- 1. STATIONS ENDPOINT (Info + Status joined) ---
@@ -38,6 +28,10 @@ bikeShareRouter.get('/lime/stations', async (req: Request, res: Response) => {
                 fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/station_status"),
                 fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/vehicle_types")
             ])
+
+            if (!infoRes.ok || !statusRes.ok || !vehicleTypeRes.ok) {
+                return res.status(502).json({ status: 'error', error: 'Failed to fetch station data from provider.' });
+            }
 
             const infoData = await infoRes.json();
             const statusData = await statusRes.json();
@@ -110,6 +104,11 @@ bikeShareRouter.get('/lime/freeBikes', async (req: Request, res: Response) => {
 
         if (!cleanBikes) {
             const freeBikesRes = await fetch("https://data.lime.bike/api/partners/v2/gbfs/vancouver_bc/free_bike_status");
+
+            if (!freeBikesRes.ok) {
+                return res.status(502).json({ status: 'error', error: 'Failed to fetch bike data from provider.' });
+            }
+
             const freeBikesData = await freeBikesRes.json();
     
             const freeBikes: RawFreeBike[] = freeBikesData.data?.bikes || [];
