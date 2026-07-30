@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Map from "../components/Map";
 import type { CleanStation, CleanFreeBike, Bounds } from '../types'
 import { bikeShareApi } from "../services/api";
+import '../styles/BikeSharePage.css'
 
 
 export default function BikeSharePage() {
@@ -10,6 +11,7 @@ export default function BikeSharePage() {
     const [loading, setloading] = useState<boolean>(false);
     const [error, setError] = useState('');
     const [bounds, setBounds] = useState<Bounds | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
     
     useEffect(() => {
         if (!bounds) return;
@@ -36,6 +38,7 @@ export default function BikeSharePage() {
                 const fetchedFreeBikes = await bikeShareApi.freeBikes(Params.toString());
                 setStations(fetchedStations);
                 setFreeBikes(fetchedFreeBikes);
+                setLastUpdated(new Date());
                 console.log(fetchedStations);
                 console.log(fetchedFreeBikes);
             } catch (err) {
@@ -47,13 +50,35 @@ export default function BikeSharePage() {
     }, [bounds]);
 
     return (
-        <div className="page">
-            <h1>Lime Vancouver</h1>
-            {error && <div className="page">{error}</div>}
-            <div className="map-placeholder">
-                <Map stations={stations} freeBikes={freeBikes} onBoundsChange={setBounds}/>
+        <div className="bike-share-page">
+            <header className="bike-share-header">
+                <h1>Lime Vancouver</h1>
+                <p>
+                    {loading
+                        ? 'Updating live availability...'
+                        : lastUpdated
+                            ? `Last updated at ${lastUpdated.toLocaleTimeString(
+                                [],
+                                {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                },
+                            )}`
+                            : 'Loading live availability...'}
+                </p>
+            </header>
+            {error && (
+                <div className="bike-share-error" role="alert">
+                    {error}
+                </div>
+            )}
+            <div className="bike-share-map">
+                <Map
+                    stations={stations}
+                    freeBikes={freeBikes}
+                    onBoundsChange={setBounds}
+                />
             </div>
-            {loading && <div className="page">Loading map data...</div>}
         </div>
     )
 }

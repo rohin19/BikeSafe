@@ -1,0 +1,69 @@
+.bike-share-page {
+  min-width: 100%;
+  margin: 0 auto;
+  padding: 0 28px;
+  box-sizing: border-box;
+}
+
+.bike-share-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.bike-share-header h1 {
+  margin: 0 0 12px;
+  color: var(--mobile-text);
+  font-size: 2.5rem;
+  font-weight: 650;
+}
+
+.bike-share-header p {
+  color: var(--mobile-text-muted);
+  font-size: 14px;
+  margin-left: 1px;
+  font-weight: 500;
+}
+
+.bike-share-map {
+  width: 100%;
+  height: clamp(520px, 70vh, 750px);
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--mobile-card);
+  border: 2px solid var(--mobile-border);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+.bike-share-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: var(--mobile-card);
+}
+
+.bike-share-error {
+  margin-bottom: 16px;
+  padding: 11px 13px;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: left;
+}
+
+@media (max-width: 700px) {
+  .bike-share-page {
+    padding: 0;
+  }
+
+  .bike-share-header h1 {
+    font-size: 2rem;
+  }
+
+  .bike-share-map {
+    height: 65vh;
+    min-height: 430px;
+    border-radius: 15px;
+  }
+}

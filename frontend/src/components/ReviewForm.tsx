@@ -67,54 +67,83 @@ export default function ReviewForm({routes, review = null, onSaved, onCancel}: R
   // If nothing exists, such that there's neither routes or previous reviews to work with, then we need to create them first
   if (!review && routes.length === 0) {
     return (
-      <div className="card">
+      <div className="review-form-empty">
         Create a route before adding a review.
       </div>
     );
   }
 
   return (
-    <form className="review-card" onSubmit={handleSubmit}>
+    <form className="review-form" onSubmit={handleSubmit}>
       <h2>{review ? 'Edit review' : 'Add review'}</h2>
 
-      <label>
+      <label className="review-form-field">
         Route
-        <select value={routeId} disabled={Boolean(review)} onChange={(event) => setRouteId(Number(event.target.value))}>
-          {sortedRoutes.map(
-            (route, index) => (
-              <option key={route.route_id} value={route.route_id}>
-                {route.start_name}
-                {' → '}
-                {route.destination_name}
-                {' '}
-                {index === 0 ? '(Most recent)' : `(${formatRouteDate(route.created_at ? route.created_at : '')})`}
-              </option>
-            )
-          )}
+        <select
+          value={routeId}
+          disabled={Boolean(review)}
+          onChange={(event) => setRouteId(Number(event.target.value))}
+        >
+          {sortedRoutes.map((route, index) => (
+            <option key={route.route_id} value={route.route_id}>
+              {route.start_name}
+              {' → '}
+              {route.destination_name}
+              {' '}
+              {index === 0
+                ? '(Most recent)'
+                : `(${formatRouteDate(route.created_at ?? '')})`}
+            </option>
+          ))}
         </select>
       </label>
 
-      <label>
+      <label className="review-form-field">
         Rating
-        <input type="number" min="0" max="5" step="0.5" required value={rating} onChange={(event) => setRating(Number(event.target.value))}/>
+        <input
+          type="number"
+          min="0"
+          max="5"
+          step="0.5"
+          required
+          value={rating}
+          onChange={(event) => setRating(Number(event.target.value))}
+        />
       </label>
 
-      <label>
+      <label className="review-form-field">
         Comment
-        <textarea maxLength={255} value={comment} onChange={(event) => setComment(event.target.value)}/>
+        <textarea
+          rows={4}
+          maxLength={255}
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+        />
       </label>
 
-      {error && <div>{error}</div>}
+      {error && (
+        <div className="review-form-error" role="alert">
+          {error}
+        </div>
+      )}
 
-      <div>
-        <button className="button primary" disabled={busy} type="submit">
+      <div className="review-form-actions">
+        <button
+          className="button primary"
+          disabled={busy}
+          type="submit"
+        >
           {busy ? 'Saving...' : 'Save review'}
         </button>
 
-        <button className="button secondary" type="button" onClick={onCancel}>
+        <button
+          className="button secondary"
+          type="button"
+          onClick={onCancel}
+        >
           Cancel
         </button>
       </div>
     </form>
-  );
+  )
 }

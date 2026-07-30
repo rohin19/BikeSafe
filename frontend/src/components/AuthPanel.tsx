@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
 import { authApi } from '../services/api'
 import type { User, AuthPanelProps } from '../types'
+import '../styles/AuthPanel.css'
 
 const emptyForm = {
     name: '',
@@ -9,7 +10,7 @@ const emptyForm = {
 }
 
 export default function AuthPanel({ user, onUserChange }: AuthPanelProps) {
-    const [mode, setMode] = useState('login')
+    const [mode, setMode] = useState<'login' | 'register'>('login')
     const [form, setForm] = useState(emptyForm)
     const [error, setError] = useState('')
     const [busy, setBusy] = useState(false)
@@ -91,85 +92,95 @@ export default function AuthPanel({ user, onUserChange }: AuthPanelProps) {
     }
 
     return (
-        <section className="panel auth-panel">
-            <div className="segmented">
-                <button
-                    type="button"
-                    className={mode === 'login' ? 'active' : ''}
-                    onClick={() => changeMode('login')}
-                >
-                    Log in
-                </button>
+        <section className="auth-page">
+            <div className="auth-card">
+                <header className="auth-header">
+                    <h1 className="auth-title">BikeSafe</h1>
+                    <h2>
+                        {mode === 'login' ? 'Welcome back' : 'Create an account'}
+                    </h2>
+                    <p>
+                        {mode === 'login'
+                            ? 'Sign in to report and manage cycling hazards.'
+                            : 'Register to begin reporting cycling hazards.'}
+                    </p>
+                </header>
 
-                <button
-                    type="button"
-                    className={mode === 'register' ? 'active' : ''}
-                    onClick={() => changeMode('register')}
-                >
-                    Register
-                </button>
-            </div>
+                <form className="auth-form" onSubmit={submit}>
+                    {mode === 'register' && (
+                        <label className="auth-field">
+                            Name
+                            <input
+                                name="name"
+                                type="text"
+                                autoComplete="name"
+                                value={form.name}
+                                onChange={updateField}
+                                required
+                            />
+                        </label>
+                    )}
 
-            <div className="auth-description">
-                <p className="eyebrow">Account</p>
-
-                <h2>
-                    {mode === 'login' ? 'Welcome back' : 'Create an account'}
-                </h2>
-
-                <p>
-                    {mode === 'login'
-                        ? 'Sign in to report and manage hazards.'
-                        : 'Create an account to begin reporting hazards.'}
-                </p>
-            </div>
-
-            <form className="form-grid" onSubmit={submit}>
-                {mode === 'register' && (
-                    <label>
-                        Name
+                    <label className="auth-field">
+                        Email
                         <input
-                            name="name"
-                            value={form.name}
+                            name="email"
+                            type="email"
+                            autoComplete="email"
+                            value={form.email}
                             onChange={updateField}
                             required
                         />
                     </label>
+
+                    <label className="auth-field">
+                        Password
+                        <input
+                            name="password"
+                            type="password"
+                            autoComplete={
+                                mode === 'login'
+                                    ? 'current-password'
+                                    : 'new-password'
+                            }
+                            minLength={8}
+                            value={form.password}
+                            onChange={updateField}
+                            required
+                        />
+                    </label>
+
+                    {error && (
+                    <p className="auth-error" role="alert">
+                        {error}
+                    </p>
                 )}
 
-                <label>
-                    Email
-                <input
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={updateField}
-                    required
-                />
-                </label>
-
-                <label>
-                    Password
-                    <input
-                        name="password"
-                        type="password"
-                        minLength={8}
-                        value={form.password}
-                        onChange={updateField}
-                        required
-                    />
-                </label>
-
-                {error && <p className="message error">{error}</p>}
-
-                <button
-                    className="button primary"
-                    type="submit"
-                    disabled={busy}
-                >
-                    {busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Create account'}
+                <button className="auth-submit" type="submit" disabled={busy}>
+                    {busy
+                        ? 'Please wait…'
+                        : mode === 'login'
+                            ? 'Log in'
+                            : 'Create account'}
                 </button>
             </form>
-        </section>
-    )
+
+            <p className="auth-switch">
+                {mode === 'login'
+                    ? 'Don’t have an account?'
+                    : 'Already have an account?'}
+
+                <button
+                    type="button"
+                    className="auth-switch-button"
+                    onClick={() =>
+                        changeMode(mode === 'login' ? 'register' : 'login')
+                    }
+                >
+                    {mode === 'login' ? 'Sign up' : 'Log in'}
+                </button>
+            </p>
+        </div>
+    </section>
+)
 }

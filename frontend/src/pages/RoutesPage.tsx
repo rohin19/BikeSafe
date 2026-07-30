@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { RoutePoint, PickingMode, User, Route, Hazard } from '../types';
 import Map from '../components/Map';
 import { geocodeApi, routeApi, hazardApi } from '../services/api';
+import '../styles/RoutesPage.css'
 
 export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
@@ -195,127 +196,270 @@ export default function RoutesPage({ user }: {user: User | null}) {
   }, [navigating]);
 
   return (
-    <div className="page">
-      <h1>Routes</h1>
-      <div className="route-search">
-        <input 
-          type="text"
-          placeholder={`Search for ${pickingMode} address... `}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}/>
-        {searching && <p className="text-muted">Searching... </p>}
-        {searchResults.length > 0 && (
-          <div className="search-results">
-            {searchResults.map((result) => (
-              <button
-                key={`${result.lat}, ${result.lon}`}
-                type="button"
-                className="search-result-item"
-                onClick={() => {selectPoint(result); setFlyTo({ lat: result.lat, lon: result.lon }); setQuery(''); setSearchResults([]); }}>
-                  {result.label}
-                </button>
-            ))}
+    <div className="routes-page">
+      <header className="routes-header">
+        <h1>Routes</h1>
+      </header>
+
+      <div className="routes-layout">
+        <section className="route-planner">
+          <div className="route-search">
+            <input
+              type="text"
+              placeholder={`Search for ${pickingMode} address...`}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+
+            {searching && (
+              <p className="route-message">Searching...</p>
+            )}
+
+            {searchResults.length > 0 && (
+              <div className="search-results">
+                {searchResults.map((result) => (
+                  <button
+                    key={`${result.lat},${result.lon}`}
+                    type="button"
+                    className="search-result-item"
+                    onClick={() => {
+                      selectPoint(result)
+                      setFlyTo({
+                        lat: result.lat,
+                        lon: result.lon,
+                      })
+                      setQuery('')
+                      setSearchResults([])
+                    }}
+                  >
+                    {result.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
 
-      <div className="mode-toggle">
-        <button
-          type="button"
-          className={pickingMode === 'start' ? 'button primary' : 'button secondary'}
-          onClick={() => setPickingMode('start')}>
-            Set Start
-        </button>
-
-        <button
-          type="button"
-          className={pickingMode === 'destination' ? 'button primary' : 'button secondary'}
-          onClick={() => setPickingMode('destination')}>
-            Set Destination
-        </button>
-      </div>
-
-      <div className="route-points">
-        <p><strong>Start: {start ? `${start.label}` : <span className="text-muted">Not set</span>}</strong></p>
-        <p><strong>Destination: {destination ? `${destination.label}` : <span className="text-muted">Not set</span>}</strong></p>
-      </div>
-      {alternatives.length > 1 && (
-        // route picker - clicking a card just swaps selectedIndex, which drives the derived `directions` above
-        <div className="route-search">
-          {alternatives.map((alt, i) => (
+          <div className="mode-toggle">
             <button
-              key={i}
               type="button"
-              className={i === selectedIndex ? 'route-card selected' : 'route-card'}
-              onClick={() => setSelectedIndex(i)}
+              className={
+                pickingMode === 'start'
+                  ? 'button primary'
+                  : 'button secondary'
+              }
+              onClick={() => setPickingMode('start')}
             >
-              <p><strong>Route {i + 1}{alt.avoidedHazards ? ' — Avoids nearby hazards' : ''}</strong></p>
-              <p className="text-muted">
-                {(alt.distance / 1000).toFixed(2)} km · {Math.round(alt.duration / 60)} min · {Math.round(alt.elevation)} m elevation · Safety {alt.safetyScore}/100
-              </p>
+              Set start
             </button>
-          ))}
-        </div>
-      )}
 
-      {directions && (
-        <>
-          <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Elevation Gain: {Math.round(directions.elevation)} m · Safety Score: {directions.safetyScore}/100.00</p>
-          <button
-            type="button"
-            className="button primary"
-            onClick={handleSave}
-            disabled={!user || saved}
-          >{saved ? 'Saved!' : 'Save Route'}</button>
-          <button
-            type="button"
-            className={navigating ? 'button secondary stop-nav' : 'button secondary'}
-            onClick={() => setNavigating((prev) => !prev)}
-          >{navigating ? 'Stop Navigation' : 'Start Navigation'}</button>
-        </>
-      )}
-
-      {error && <div className="page">{error}</div>}
-      {loading && <div className="page">Loading...</div>}
-
-      <div className="map-placeholder">
-        <Map
-          onMapClick={handleMapClick}
-          route={{ start, destination, path: directions?.path ?? [] }}
-          flyTo={flyTo}
-          hazards={hazards}
-          liveLocation={liveLocation}></Map>
-      </div>
-
-      <div className="page">
-        <h1>Your Routes</h1>
-        {routes.length === 0 && <p className="text-muted"> No routes saved yet.</p>}
-        {routes.map((r) => (
-          <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
-            <p><strong>{r.start_name} → {r.destination_name}</strong></p>
-            <p className="text-muted">
-              {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Elevation Gain: {Math.round(r.elevation)} m elevation· Safety {r.safety_score}/100.00
-            </p>
-            <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>X</button>
+            <button
+              type="button"
+              className={
+                pickingMode === 'destination'
+                  ? 'button primary'
+                  : 'button secondary'
+              }
+              onClick={() => setPickingMode('destination')}
+            >
+              Set destination
+            </button>
           </div>
-        ))}
-      </div>
 
-      {user?.role === 'admin' && (
-        <div className="page">
-          <h1>All Routes (Admin)</h1>
-          {allRoutes.length === 0 && <p className="text-muted">No routes exist yet.</p>}
-          {allRoutes.map((r) => (
-            <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
-              <p><strong>{r.start_name} → {r.destination_name}</strong></p>
-              <p className="text-muted">
-                {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · {Math.round(r.elevation)} m elevation · Safety {r.safety_score}/100 · Created by user #{r.created_by}
-              </p>
-              <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>✕</button>
+          <div className="route-points">
+            <p>
+              <span>Start</span>
+              <strong>{start?.label ?? 'Not set'}</strong>
+            </p>
+
+            <p>
+              <span>Destination</span>
+              <strong>{destination?.label ?? 'Not set'}</strong>
+            </p>
+          </div>
+
+          {alternatives.length > 1 && (
+            <div className="route-alternatives">
+              {alternatives.map((alternative, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={
+                    index === selectedIndex
+                      ? 'route-card selected'
+                      : 'route-card'
+                  }
+                  onClick={() => setSelectedIndex(index)}
+                >
+                  <strong>
+                    Route {index + 1}
+                    {alternative.avoidedHazards
+                      ? ' — Avoids nearby hazards'
+                      : ''}
+                  </strong>
+
+                  <span>
+                    {(alternative.distance / 1000).toFixed(2)} km ·{' '}
+                    {Math.round(alternative.duration / 60)} min ·{' '}
+                    {Math.round(alternative.elevation)} m elevation ·{' '}
+                    Safety {alternative.safetyScore}/100
+                  </span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          )}
+
+          {directions && (
+            <div className="route-summary">
+              <p>
+                {(directions.distance / 1000).toFixed(2)} km ·{' '}
+                {Math.round(directions.duration / 60)} min ·{' '}
+                {Math.round(directions.elevation)} m elevation ·{' '}
+                Safety {directions.safetyScore}/100
+              </p>
+
+              <button
+                type="button"
+                className="button primary"
+                onClick={handleSave}
+                disabled={!user || saved}
+              >
+                {saved ? 'Saved!' : 'Save route'}
+              </button>
+
+              <button
+                type="button"
+                className={
+                  navigating
+                    ? 'button secondary stop-nav'
+                    : 'button secondary'
+                }
+                onClick={() => setNavigating((prev) => !prev)}
+              >
+                {navigating ? 'Stop Navigation' : 'Start Navigation'}
+              </button>
+            </div>
+          )}
+
+          {error && (
+            <div className="routes-error" role="alert">
+              {error}
+            </div>
+          )}
+
+          {loading && (
+            <p className="route-message">Calculating routes...</p>
+          )}
+
+          <div className="routes-map">
+            <Map
+              onMapClick={handleMapClick}
+              route={{
+                start,
+                destination,
+                path: directions?.path ?? [],
+              }}
+              flyTo={flyTo}
+              hazards={hazards}
+              liveLocation={liveLocation}
+            />
+          </div>
+        </section>
+
+        <aside
+          className={
+            user?.role === 'admin'
+              ? 'saved-routes-panel with-admin'
+              : 'saved-routes-panel'
+          }
+        >
+          <section className="saved-route-section">
+            <h2>Your routes</h2>
+
+            <div className="saved-route-list">
+              {routes.length === 0 && (
+                <p className="routes-empty">No routes saved yet.</p>
+              )}
+
+              {routes.map((route) => (
+                <article
+                  key={route.route_id}
+                  className="route-card saved-route-card"
+                  onClick={() => handleSelectRoute(route)}
+                >
+                  <div>
+                    <strong>
+                      {route.start_name} → {route.destination_name}
+                    </strong>
+
+                    <p>
+                      {(route.distance / 1000).toFixed(2)} km ·{' '}
+                      {Math.round(route.duration / 60)} min ·{' '}
+                      Safety {route.safety_score}/100
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="button danger"
+                    aria-label="Delete route"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      handleDelete(route.route_id!)
+                    }}
+                  >
+                    ×
+                  </button>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          {user?.role === 'admin' && (
+            <section className="saved-route-section admin-route-section">
+              <h2>All routes</h2>
+
+              <div className="saved-route-list">
+                {allRoutes.length === 0 && (
+                  <p className="routes-empty">No routes exist yet.</p>
+                )}
+
+                {allRoutes.map((route) => (
+                  <article
+                    key={route.route_id}
+                    className="route-card saved-route-card"
+                    onClick={() => handleSelectRoute(route)}
+                  >
+                    <div>
+                      <strong>
+                        {route.start_name} → {route.destination_name}
+                      </strong>
+
+                      <p>
+                        {(route.distance / 1000).toFixed(2)} km ·{' '}
+                        {Math.round(route.duration / 60)} min ·{' '}
+                        Safety {route.safety_score}/100 · User #
+                        {route.created_by}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="button danger"
+                      aria-label="Delete route"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        handleDelete(route.route_id!)
+                      }}
+                    >
+                      ×
+                    </button>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+        </aside>
+      </div>
     </div>
   )
 }
