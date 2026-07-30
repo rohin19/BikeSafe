@@ -8,11 +8,12 @@ import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo, liveLocation}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const liveLocationLayerRef = useRef<L.LayerGroup | null>(null);
   const onMapClickRef = useRef(onMapClick);
 
   useEffect(() => {
@@ -33,11 +34,13 @@ export default function Map ({
     ).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
-    const routeLayer = L.layerGroup().addTo(map); 
+    const routeLayer = L.layerGroup().addTo(map);
+    const liveLocationLayer = L.layerGroup().addTo(map);
 
     leafletMapRef.current = map;
     markersLayerRef.current = markersLayer;
     routeLayerRef.current = routeLayer;
+    liveLocationLayerRef.current = liveLocationLayer;
 
     function updateBounds() {
       const bounds = map.getBounds();
