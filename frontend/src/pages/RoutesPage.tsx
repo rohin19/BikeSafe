@@ -23,6 +23,8 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
   const [flyTo, setFlyTo] = useState<{ lat: number; lon: number } | null>(null);
   const [hazards, setHazards] = useState<Hazard[]>([]);
+  const [navigating, setNavigating] = useState(false);
+  const [liveLocation, setLiveLocation] = useState<{ lat: number; lon: number } | null>(null);
 
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
@@ -171,6 +173,24 @@ export default function RoutesPage({ user }: {user: User | null}) {
       .then(setHazards)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load hazards'));
   }, []);
+
+  // live navigation: only watches position while navigating is on, so we don't prompt for location before the user asks
+  useEffect(() => {
+    if (!navigating) {
+      setLiveLocation(null);
+      return;
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setLiveLocation({ lat: position.coords.latitude, lon: position.coords.longitude });
+      },
+      () => setError('Unable to track your location'),
+      { enableHighAccuracy: true }
+    );
+
+    return () => navigator.geolocation.clearWatch(watchId);
+  }, [navigating]);
 
   return (
     <div className="page">
