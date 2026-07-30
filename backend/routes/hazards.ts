@@ -74,6 +74,75 @@ function validateHazardBody(body: any, includeStatus = false): string | null {
 // ---------- GET REQUESTS ----------
 
 // GET /api/hazards - return all hazards
+/**
+ * @openapi
+ * /api/hazards:
+ *   get:
+ *     summary: Retrieve all hazard reports
+ *     tags: [Hazards]
+ *     responses:
+ *       200:
+ *         description: A list of all hazard reports
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   hazard_id:
+ *                     type: integer
+ *                     example: 1
+ *                   user_id:
+ *                     type: integer
+ *                     nullable: true
+ *                     example: 2
+ *                   title:
+ *                     type: string
+ *                     example: Pothole on Main Street
+ *                   description:
+ *                     type: string
+ *                     example: Large pothole in the eastbound bike lane.
+ *                   category:
+ *                     type: string
+ *                     enum: [Construction, Accident, Bike Theft, Road Condition, Obstacle, Other]
+ *                     example: Road Condition
+ *                   current_status:
+ *                     type: string
+ *                     enum: [reported, in_progress, resolved]
+ *                     example: reported
+ *                   severity:
+ *                     type: integer
+ *                     minimum: 1
+ *                     maximum: 5
+ *                     example: 3
+ *                   latitude:
+ *                     type: number
+ *                     format: double
+ *                     example: 49.2827
+ *                   longitude:
+ *                     type: number
+ *                     format: double
+ *                     example: -123.1207
+ *                   image_url:
+ *                     type: string
+ *                     nullable: true
+ *                     example: null
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *                     example: 2026-07-29T12:00:00.000Z
+ *       500:
+ *         description: Failed to retrieve hazards from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Failed to fetch hazards
+ */
 hazardsRouter.get('/', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM hazards');
@@ -85,6 +154,62 @@ hazardsRouter.get('/', async (req, res) => {
 });
 
 // GET /api/hazards/stats - get statistics for a dashboard
+/**
+ * @openapi
+ * /api/hazards/stats:
+ *   get:
+ *     summary: Retrieve aggregate hazard statistics
+ *     tags: [Hazards]
+ *     responses:
+ *       200:
+ *         description: Hazard totals grouped by category and status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 totalHazards:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       totalhazards:
+ *                         type: string
+ *                         example: "5"
+ *                 categories:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       category:
+ *                         type: string
+ *                         example: Construction
+ *                       count:
+ *                         type: string
+ *                         example: "3"
+ *                 statuses:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       current_status:
+ *                         type: string
+ *                         enum: [reported, in_progress, resolved]
+ *                         example: reported
+ *                       count:
+ *                         type: string
+ *                         example: "4"
+ *       500:
+ *         description: Failed to calculate hazard statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Fail to retrieve stats
+ */
 hazardsRouter.get('/stats', async (req, res) => {
     try {
         const totalHazards = await pool.query(
@@ -121,6 +246,104 @@ hazardsRouter.get('/stats', async (req, res) => {
 });
 
 // GET /api/hazards/:id - get a specific hazard
+/**
+ * @openapi
+ * /api/hazards/{id}:
+ *   get:
+ *     summary: Retrieve a hazard report by ID
+ *     tags: [Hazards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Positive integer identifying the hazard
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           example: 1
+ *     responses:
+ *       200:
+ *         description: The requested hazard report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   hazard_id:
+ *                     type: integer
+ *                     example: 1
+ *                   user_id:
+ *                     type: integer
+ *                     nullable: true
+ *                     example: 2
+ *                   title:
+ *                     type: string
+ *                     example: Pothole on Main Street
+ *                   description:
+ *                     type: string
+ *                     example: Large pothole in the eastbound bike lane.
+ *                   category:
+ *                     type: string
+ *                     enum: [Construction, Accident, Bike Theft, Road Condition, Obstacle, Other]
+ *                     example: Road Condition
+ *                   current_status:
+ *                     type: string
+ *                     enum: [reported, in_progress, resolved]
+ *                     example: reported
+ *                   severity:
+ *                     type: integer
+ *                     minimum: 1
+ *                     maximum: 5
+ *                     example: 3
+ *                   latitude:
+ *                     type: number
+ *                     format: double
+ *                     example: 49.2827
+ *                   longitude:
+ *                     type: number
+ *                     format: double
+ *                     example: -123.1207
+ *                   image_url:
+ *                     type: string
+ *                     nullable: true
+ *                     example: null
+ *                   created_at:
+ *                     type: string
+ *                     format: date-time
+ *                     example: 2026-07-29T12:00:00.000Z
+ *       400:
+ *         description: The hazard ID is not a positive integer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Hazard ID must be positive integer
+ *       404:
+ *         description: No hazard exists with the supplied ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Hazard not found
+ *       500:
+ *         description: Failed to retrieve the hazard from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Failed to retrieve hazard by id
+ */
 hazardsRouter.get('/:id', async (req, res) => {
     try {
         const hazardID = parseHazardId(req.params.id);
@@ -142,6 +365,120 @@ hazardsRouter.get('/:id', async (req, res) => {
 // ---------- POST REQUESTS ----------
 
 // POST /api/hazards - create a new hazard
+/**
+ * @openapi
+ * /api/hazards:
+ *   post:
+ *     summary: Create a hazard report
+ *     description: Creates a hazard owned by the authenticated user. The user ID is taken from the JWT cookie.
+ *     tags: [Hazards]
+ *     parameters:
+ *       - in: cookie
+ *         name: token
+ *         required: true
+ *         description: JWT authentication cookie
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - category
+ *               - severity
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: Construction blocking bike lane
+ *               description:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: Equipment is blocking the eastbound bike lane.
+ *               category:
+ *                 type: string
+ *                 enum: [Construction, Accident, Bike Theft, Road Condition, Obstacle, Other]
+ *                 example: Construction
+ *               severity:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
+ *               latitude:
+ *                 type: number
+ *                 format: double
+ *                 minimum: -90
+ *                 maximum: 90
+ *                 example: 49.2827
+ *               longitude:
+ *                 type: number
+ *                 format: double
+ *                 minimum: -180
+ *                 maximum: 180
+ *                 example: -123.1207
+ *               image_url:
+ *                 type: string
+ *                 nullable: true
+ *                 maxLength: 255
+ *                 example: null
+ *     responses:
+ *       200:
+ *         description: The newly created hazard report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *             example:
+ *               - hazard_id: 10
+ *                 user_id: 2
+ *                 title: Construction blocking bike lane
+ *                 description: Equipment is blocking the eastbound bike lane.
+ *                 category: Construction
+ *                 current_status: reported
+ *                 severity: 4
+ *                 latitude: 49.282700
+ *                 longitude: -123.120700
+ *                 image_url: null
+ *                 created_at: 2026-07-29T12:00:00.000Z
+ *       400:
+ *         description: One or more hazard fields failed validation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Severity must be an integer between 1 and 5
+ *       401:
+ *         description: The user is not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No token provided
+ *       500:
+ *         description: Failed to insert the hazard into the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Failed to add new hazard
+ */
 hazardsRouter.post('/', requireAuth, async (req, res) => {
     try {
         const validationError = validateHazardBody(req.body);
@@ -170,6 +507,153 @@ hazardsRouter.post('/', requireAuth, async (req, res) => {
 // ---------- PATCH REQUESTS ----------
 
 // PATCH /api/hazards/:id - update a hazard
+/**
+ * @openapi
+ * /api/hazards/{id}:
+ *   patch:
+ *     summary: Update a hazard report
+ *     description: Updates an existing hazard report. Administrator access is required.
+ *     tags: [Hazards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Positive integer identifying the hazard
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           example: 1
+ *       - in: cookie
+ *         name: token
+ *         required: true
+ *         description: JWT authentication cookie belonging to an administrator
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - description
+ *               - category
+ *               - current_status
+ *               - severity
+ *               - latitude
+ *               - longitude
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: Construction blocking bike lane
+ *               description:
+ *                 type: string
+ *                 maxLength: 255
+ *                 example: Equipment is blocking the eastbound bike lane.
+ *               category:
+ *                 type: string
+ *                 enum: [Construction, Accident, Bike Theft, Road Condition, Obstacle, Other]
+ *                 example: Construction
+ *               current_status:
+ *                 type: string
+ *                 enum: [reported, in_progress, resolved]
+ *                 example: in_progress
+ *               severity:
+ *                 type: integer
+ *                 minimum: 1
+ *                 maximum: 5
+ *                 example: 4
+ *               latitude:
+ *                 type: number
+ *                 format: double
+ *                 minimum: -90
+ *                 maximum: 90
+ *                 example: 49.2827
+ *               longitude:
+ *                 type: number
+ *                 format: double
+ *                 minimum: -180
+ *                 maximum: 180
+ *                 example: -123.1207
+ *               image_url:
+ *                 type: string
+ *                 nullable: true
+ *                 maxLength: 255
+ *                 example: null
+ *     responses:
+ *       200:
+ *         description: The updated hazard report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *             example:
+ *               - hazard_id: 1
+ *                 user_id: 2
+ *                 title: Construction blocking bike lane
+ *                 description: Equipment is blocking the eastbound bike lane.
+ *                 category: Construction
+ *                 current_status: in_progress
+ *                 severity: 4
+ *                 latitude: 49.282700
+ *                 longitude: -123.120700
+ *                 image_url: null
+ *                 created_at: 2026-07-29T12:00:00.000Z
+ *       400:
+ *         description: The hazard ID or request body is invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Invalid hazard status
+ *       401:
+ *         description: The user is not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No token provided
+ *       403:
+ *         description: The authenticated user is not an administrator
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Forbidden
+ *       404:
+ *         description: No hazard exists with the supplied ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Hazard not found
+ *       500:
+ *         description: Failed to update the hazard in the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Failed to update hazard
+ */
 hazardsRouter.patch('/:id', requireAdmin, async (req, res) => {
     try {
         const hazardID = parseHazardId(req.params.id);
@@ -217,6 +701,100 @@ hazardsRouter.patch('/:id', requireAdmin, async (req, res) => {
 // ---------- DELETE REQUESTS ----------
 
 // DELETE /api/hazards/:id - delete a hazard by id
+/**
+ * @openapi
+ * /api/hazards/{id}:
+ *   delete:
+ *     summary: Delete a hazard report
+ *     description: Permanently deletes a hazard report. Administrator access is required.
+ *     tags: [Hazards]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Positive integer identifying the hazard
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           example: 1
+ *       - in: cookie
+ *         name: token
+ *         required: true
+ *         description: JWT authentication cookie belonging to an administrator
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The deleted hazard report
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *             example:
+ *               - hazard_id: 1
+ *                 user_id: 2
+ *                 title: Pothole on Main Street
+ *                 description: Large pothole in the eastbound bike lane.
+ *                 category: Road Condition
+ *                 current_status: reported
+ *                 severity: 3
+ *                 latitude: 49.282700
+ *                 longitude: -123.120700
+ *                 image_url: null
+ *                 created_at: 2026-07-29T12:00:00.000Z
+ *       400:
+ *         description: The hazard ID is not a positive integer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Hazard ID must be positive integer
+ *       401:
+ *         description: The user is not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: No token provided
+ *       403:
+ *         description: The authenticated user is not an administrator
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Forbidden
+ *       404:
+ *         description: No hazard exists with the supplied ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Hazard not found
+ *       500:
+ *         description: Failed to delete the hazard from the database
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Failed to delete hazard
+ */
 hazardsRouter.delete('/:id', requireAdmin, async (req, res) => {
     try {
         const hazardID = parseHazardId(req.params.id);
