@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import type { RoutePoint, PickingMode, User, Route } from '../types';
+import type { RoutePoint, PickingMode, User, Route, Hazard } from '../types';
 import Map from '../components/Map';
-import { geocodeApi, routeApi } from '../services/api';
+import { geocodeApi, routeApi, hazardApi } from '../services/api';
 
 export default function RoutesPage({ user }: {user: User | null}) {
   const [query, setQuery] = useState('');
@@ -12,13 +12,17 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
-  const [directions, setDirections] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number } | null >(null);
+  const [alternatives, setAlternatives] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number; avoidedHazards: boolean }[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  // derived, not its own state - everywhere below that reads directions.X just keeps working
+  const directions = selectedIndex !== null ? alternatives[selectedIndex] : null;
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
   const [routes, setRoutes] = useState<Route[]>([]);
   const [allRoutes, setAllRoutes] = useState<Route[]>([]); // list for admin purposes
   const [flyTo, setFlyTo] = useState<{ lat: number; lon: number } | null>(null);
+  const [hazards, setHazards] = useState<Hazard[]>([]);
 
   // sets whiever point (start/dest) is currently active based on pickingMode
   function selectPoint(point: RoutePoint) {
@@ -58,6 +62,13 @@ export default function RoutesPage({ user }: {user: User | null}) {
     }
   }
 
+  // selects a saved route to view: reuses the same start/dest -> directions pipeline as planning a new one, just seeded from a saved row instead of a search/click
+  function handleSelectRoute(r: Route) {
+    setStart({ lat: r.start_latitude, lon: r.start_longitude, label: r.start_name });
+    setDestination({ lat: r.destination_latitude, lon: r.destination_longitude, label: r.destination_name });
+    setFlyTo({ lat: r.start_latitude, lon: r.start_longitude });
+  }
+
   // saves route on display
   async function handleSave() {
     if (!start || !destination || !directions || !user) return;
@@ -94,7 +105,15 @@ export default function RoutesPage({ user }: {user: User | null}) {
         setLoading(true);
         setError('');
         const result = await routeApi.directions(currentStart, currentDestination);
-        setDirections(result);
+        setAlternatives(result.alternatives);
+
+        // default to whichever alternative scored safest, user can still pick a different one below
+        const safestIndex = result.alternatives.reduce(
+          (bestI: number, alt: typeof result.alternatives[number], i: number) =>
+            alt.safetyScore > result.alternatives[bestI].safetyScore ? i : bestI,
+          0
+        );
+        setSelectedIndex(result.alternatives.length > 0 ? safestIndex : null);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to compute directions');
       } finally {
@@ -146,6 +165,13 @@ export default function RoutesPage({ user }: {user: User | null}) {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load all routes'));
   }, [saved, user]);
 
+  // loads hazards once so they show up on the map while planning a route
+  useEffect(() => {
+    hazardApi.list()
+      .then(setHazards)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load hazards'));
+  }, []);
+
   return (
     <div className="page">
       <h1>Routes</h1>
@@ -191,6 +217,25 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <p><strong>Start: {start ? `${start.label}` : <span className="text-muted">Not set</span>}</strong></p>
         <p><strong>Destination: {destination ? `${destination.label}` : <span className="text-muted">Not set</span>}</strong></p>
       </div>
+      {alternatives.length > 1 && (
+        // route picker - clicking a card just swaps selectedIndex, which drives the derived `directions` above
+        <div className="route-search">
+          {alternatives.map((alt, i) => (
+            <button
+              key={i}
+              type="button"
+              className={i === selectedIndex ? 'route-card selected' : 'route-card'}
+              onClick={() => setSelectedIndex(i)}
+            >
+              <p><strong>Route {i + 1}{alt.avoidedHazards ? ' — Avoids nearby hazards' : ''}</strong></p>
+              <p className="text-muted">
+                {(alt.distance / 1000).toFixed(2)} km · {Math.round(alt.duration / 60)} min · {Math.round(alt.elevation)} m elevation · Safety {alt.safetyScore}/100
+              </p>
+            </button>
+          ))}
+        </div>
+      )}
+
       {directions && (
         <>
           <p>Distance: {(directions.distance / 1000).toFixed(2)} km · Duration: {Math.round(directions.duration / 60)} min. · Elevation Gain: {Math.round(directions.elevation)} m · Safety Score: {directions.safetyScore}/100.00</p>
@@ -210,19 +255,20 @@ export default function RoutesPage({ user }: {user: User | null}) {
         <Map
           onMapClick={handleMapClick}
           route={{ start, destination, path: directions?.path ?? [] }}
-          flyTo={flyTo}></Map>
+          flyTo={flyTo}
+          hazards={hazards}></Map>
       </div>
 
       <div className="page">
         <h1>Your Routes</h1>
         {routes.length === 0 && <p className="text-muted"> No routes saved yet.</p>}
         {routes.map((r) => (
-          <div key={r.route_id} className="route-card">
+          <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
             <p><strong>{r.start_name} → {r.destination_name}</strong></p>
             <p className="text-muted">
               {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · Elevation Gain: {Math.round(r.elevation)} m elevation· Safety {r.safety_score}/100.00
             </p>
-            <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>X</button>
+            <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>X</button>
           </div>
         ))}
       </div>
@@ -232,12 +278,12 @@ export default function RoutesPage({ user }: {user: User | null}) {
           <h1>All Routes (Admin)</h1>
           {allRoutes.length === 0 && <p className="text-muted">No routes exist yet.</p>}
           {allRoutes.map((r) => (
-            <div key={r.route_id} className="route-card">
+            <div key={r.route_id} className="route-card" onClick={() => handleSelectRoute(r)}>
               <p><strong>{r.start_name} → {r.destination_name}</strong></p>
               <p className="text-muted">
                 {(r.distance / 1000).toFixed(2)} km · {Math.round(r.duration / 60)} min · {Math.round(r.elevation)} m elevation · Safety {r.safety_score}/100 · Created by user #{r.created_by}
               </p>
-              <button type="button" className="button danger" onClick={() => handleDelete(r.route_id!)}>✕</button>
+              <button type="button" className="button danger" onClick={(e) => { e.stopPropagation(); handleDelete(r.route_id!); }}>✕</button>
             </div>
           ))}
         </div>

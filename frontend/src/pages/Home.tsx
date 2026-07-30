@@ -37,15 +37,21 @@ export default function Home({ user }: {user: User}) {
         <p className="text-muted">Welcome back, </p>
         <h1>{user.name}</h1>
       </div>
+      <p>Hazards Loaded: {hazards.length}</p>
 
       <h2>map · nearby hazards</h2>
       <div className="map-placeholder">
-        <Map harzards={hazards}></Map>
+        <Map hazards={hazards}></Map>
       </div>
 
       <Link to="/hazards/new" className="button primary">
       + Report a hazard
       </Link>
+
+      <Link to="/reviews" className="button primary">
+        Ride logs & reviews
+      </Link>
+
     </div>
   )
   

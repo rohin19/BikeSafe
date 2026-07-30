@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Hazards from './pages/Hazards'
 import ReportHazard from './pages/ReportHazard'
 import RoutesPage from './pages/RoutesPage'
+import ReviewsPage from './pages/ReviewsPage';
 import BikeSharePage from './pages/BikeSharePage'
 import ProfilePage from './pages/ProfilePage'
 import Admin from './pages/Admin'
@@ -49,6 +50,7 @@ function App() {
           <Route path="/hazards" element={<Hazards user={user} />}/>
           <Route path="/hazards/new" element={<ReportHazard user={user} />}/>
           <Route path="/routes" element={<RoutesPage user={user} />}/>
+          <Route path="/reviews" element={<ReviewsPage user={user} />}/>
           <Route path="/bikeshare" element={<BikeSharePage />}/>
           <Route path='/admin' element={<Admin user={user} />}/>
           <Route path="/profile" element={<ProfilePage user={user} onUserChange={setUser}/>}/>

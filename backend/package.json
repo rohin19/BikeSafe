@@ -7,13 +7,18 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "node-cache": "^5.1.2",
-    "pg": "^8.22.0"
+    "pg": "^8.22.0",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1"
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "test": "jest"
+    "test": "node --import tsx --test \"test/**/*.test.ts\"",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage \"test/**/*.test.ts\"",
+    "docs:export": "node --import tsx scripts/export-openapi.ts",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -23,10 +28,14 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.1.1",
     "@types/pg": "^8.20.0",
+    "@types/supertest": "^7.2.1",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "jest": "^30.4.2",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "ts-node-dev": "^2.0.0",
+    "tsx": "^4.23.1",
     "typescript": "^6.0.3"
   }
 }

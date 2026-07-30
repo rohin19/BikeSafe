@@ -4,12 +4,12 @@ import { hazardApi } from "../services/api";
 import type { User } from "../types";
 
 const CATEGORIES = [
-  "construction",
-  "accident",
-  "bike theft",
-  "road condition",
-  "obstacle",
-  "other",
+  "Construction",
+  "Accident",
+  "Bike Theft",
+  "Road Condition",
+  "Obstacle",
+  "Other",
 ] as const;
 
 export default function ReportHazard({ user }: {user: User}) {
