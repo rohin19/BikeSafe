@@ -16,14 +16,14 @@ router.get('/users', async (req: Request, res: Response) => {
       return res.status(200).json(result.rows);
   } catch (err) {
     console.error('Error fetching users:', err);
-    return res.status(500).json({err: 'Failed to fetch users'});
+    return res.status(500).json({error: 'Failed to fetch users'});
   }
 });
 
 router.delete('/users/:id', async (req: Request, res: Response) => {
   const id = parseInt(String(req.params.id));
 
-  if (isNaN(id)) {
+  if (isNaN(id) || id <= 0) {
     return res.status(400).json({ error: 'Invalid User Id'})
   }
 
@@ -33,10 +33,7 @@ router.delete('/users/:id', async (req: Request, res: Response) => {
 
   try {
     const result = await pool.query(
-      `Delete FROM users
-      WHERE user_id = $1
-      RETURNING user_id, name, email`,
-      [id]
+      `DELETE FROM users WHERE user_id = $1 RETURNING user_id, name, email`, [id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'User not found' });
@@ -55,7 +52,7 @@ router.patch('/users/:id/role', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Role must be admin or user' });
   }
 
-  if (isNaN(id)) {
+  if (isNaN(id) ||  id <= 0) {
     return res.status(400).json({ error: 'Invalid User Id' });
   }
   if (id === req.user!.user_id) {
@@ -73,7 +70,7 @@ router.patch('/users/:id/role', async (req: Request, res: Response) => {
       [role, id]
     );
     if (result.rows.length === 0) {
-      return res.status(400).json({ error: 'User not found' });
+      return res.status(404).json({ error: 'User not found' });
     }
     return res.status(200).json(result.rows[0]);
   } catch (err) {
