@@ -15,8 +15,8 @@
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "start": "node dist/index.js",
     "build": "tsc",
-    "test": "node --import tsx --test \"test/**/*.test.ts\"",
-    "test:coverage": "node --import tsx --test --experimental-test-coverage \"test/**/*.test.ts\"",
+    "test": "node --import tsx --test test/*.test.ts",
+    "test:coverage": "node --import tsx --test --experimental-test-coverage test/*.test.ts",
     "docs:export": "node --import tsx scripts/export-openapi.ts",
     "typecheck": "tsc --noEmit"
   },
