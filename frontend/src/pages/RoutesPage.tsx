@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { RoutePoint, PickingMode, User, Route, Hazard } from '../types';
 import Map from '../components/Map';
 import { geocodeApi, routeApi, hazardApi } from '../services/api';
+import { pickSafestIndex, type RouteAlternative } from './routeAlternatives';
 import '../styles/RoutesPage.css'
 
 export default function RoutesPage({ user }: {user: User | null}) {
@@ -13,7 +14,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
   const [pickingMode, setPickingMode] = useState<PickingMode>('start');
   const [start, setStart] = useState<RoutePoint | null>(null);
   const [destination, setDestination] = useState<RoutePoint | null>(null);
-  const [alternatives, setAlternatives] = useState<{ path: { lat:number, lon:number }[]; distance: number; duration:number; safetyScore:number; elevation: number; avoidedHazards: boolean }[]>([]);
+  const [alternatives, setAlternatives] = useState<RouteAlternative[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   // derived, not its own state - everywhere below that reads directions.X just keeps working
   const directions = selectedIndex !== null ? alternatives[selectedIndex] : null;
@@ -111,12 +112,7 @@ export default function RoutesPage({ user }: {user: User | null}) {
         setAlternatives(result.alternatives);
 
         // default to whichever alternative scored safest, user can still pick a different one below
-        const safestIndex = result.alternatives.reduce(
-          (bestI: number, alt: typeof result.alternatives[number], i: number) =>
-            alt.safetyScore > result.alternatives[bestI].safetyScore ? i : bestI,
-          0
-        );
-        setSelectedIndex(result.alternatives.length > 0 ? safestIndex : null);
+        setSelectedIndex(pickSafestIndex(result.alternatives));
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to compute directions');
       } finally {
