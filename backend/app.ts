@@ -10,14 +10,17 @@ import { pool } from './db';
 import cookieParser from 'cookie-parser';
 import routesRouter from './routes/routes';
 import geocodeRouter from './routes/geocode';
+import swaggerUi from 'swagger-ui-express';
+import spec from './swagger';
 
 // create express app
 const app = express();
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cookieParser());
 
 // development CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'http://34.187.197.133';
+const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://34.187.197.133';
 
 app.use(cors({
   origin: allowedOrigins,
@@ -31,6 +34,10 @@ app.use('/api/bikeShare', bikeShareRouter);
 app.use('/api/reviews', reviewsRouter);
 app.use('/api/routes', routesRouter);
 app.use('/api/routes/geocode', geocodeRouter);
+
+// swagger documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(spec));
+app.get("/openapi.json", (_req, res) => {res.json(spec);});
 
 // test that the API is working
 app.get('/api/health', (req: Request, res: Response) => { 

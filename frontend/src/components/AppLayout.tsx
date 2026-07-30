@@ -1,16 +1,16 @@
 import { Outlet } from 'react-router-dom'
-import BottomNav from './BottomNav'
 import type { User } from '../types'
+import Navbar from './Navbar'
 
 // Outlet component is react router's placeholder for whatever child route matched
 // could be the components in the /pages directory (Home, Hazards, ReportHazards)
 export default function AppLayout({ user }: { user: User | null }) {
-    return(
+    return (
         <div className="website-frame">
-            <div className="page-outlet">
+            <Navbar user={user} />
+            <main className="page-outlet">
                 <Outlet />
-            </div>
-            <BottomNav user={user}/>
+            </main>
         </div>
     )
 }

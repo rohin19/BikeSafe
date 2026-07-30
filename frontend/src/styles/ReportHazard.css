@@ -1,0 +1,138 @@
+.report-page {
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.report-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.report-header h1 {
+  margin: 0;
+  color: var(--mobile-text);
+  font-size: 2.5rem;
+  font-weight: 650;
+}
+
+.report-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  align-items: start;
+  gap: 30px;
+}
+
+.report-fields {
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+
+.report-fields label {
+  display: grid;
+  gap: 7px;
+  color: var(--mobile-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.report-fields input,
+.report-fields select,
+.report-fields textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 13px;
+  color: var(--mobile-text);
+  background: var(--mobile-card);
+  border: 1px solid var(--mobile-border);
+  border-radius: 10px;
+  outline: none;
+  font: inherit;
+  font-size: 14px;
+}
+
+.report-fields input:focus,
+.report-fields select:focus,
+.report-fields textarea:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-bg);
+}
+
+.report-fields textarea {
+  resize: vertical;
+}
+
+.report-coordinates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.report-fields .button {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.report-error {
+  padding: 11px 13px;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.report-map-section {
+  min-width: 0;
+}
+
+.report-map {
+  width: 100%;
+  height: 560px;
+  overflow: hidden;
+  background: var(--mobile-card);
+  border: 2px solid var(--mobile-border);
+  border-radius: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+.report-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+.report-map-section p {
+  margin-top: 10px;
+  color: var(--mobile-text-muted);
+  font-size: 13px;
+  text-align: left;
+}
+
+@media (max-width: 850px) {
+  .report-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .report-fields {
+    max-width: 520px;
+  }
+
+  .report-map {
+    height: 440px;
+  }
+}
+
+@media (max-width: 480px) {
+  .report-coordinates {
+    grid-template-columns: 1fr;
+  }
+
+  .report-map {
+    height: 380px;
+    border-radius: 15px;
+  }
+}

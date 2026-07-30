@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { adminApi } from "../services/api";
 import type { User } from '../types'
+import '../styles/Admin.css'
 
 export default function Admin({ user }: {user: User | null}) {
     const [users, setUsers] = useState<User[]>([])
@@ -9,11 +10,11 @@ export default function Admin({ user }: {user: User | null}) {
     const [deletingId, setDeletingId] = useState<number | null>(null)
     const [updatingId, setUpdatingId] = useState<number | null>(null)
 
-    if (user?.role !== 'admin') {
-        return <div className="page"> 
-            you do not have permission to view this page.
-            </div>
-    }
+    // if (user?.role !== 'admin') {
+    //     return <div className="page"> 
+    //         you do not have permission to view this page.
+    //         </div>
+    // }
 
     async function handleDelete(userID:number) {
         if (!window.confirm('Delete this user? This cannot be undone.')) return
@@ -41,74 +42,106 @@ export default function Admin({ user }: {user: User | null}) {
     }
 
     useEffect(() => {
+        if (user?.role !== 'admin') {
+            setBusy(false)
+            return
+        }
+
         adminApi
             .listUsers()
             .then(setUsers)
             .catch((err) => setError(err.message))
             .finally(() => setBusy(false))
-    }, [])
+    }, [user?.role])
 
+    if (user?.role !== 'admin') {
+      return (
+          <div className="admin-status admin-error">
+              You do not have permission to view this page.
+          </div>
+      )
+    }
     if (busy) return <div className="page">Loading...</div>
     if (error) return <div className="page">{error}</div>
 
     return (
-        <div className="page">
-      <h1>Admin — User Management</h1>
-      <p className="text-muted">{users.length} registered users</p>
+      <div className="admin-page">
+          <header className="admin-header">
+              <h1>Admin — User Management</h1>
+              <p>{users.length} registered users</p>
+          </header>
 
-      {users.map((u) => (
-        <div key={u.user_id} style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          gap: '12px'
-        }}>
-          {/* User info */}
-          <div style={{ textAlign: 'left' }}>
-            <strong>{u.name}</strong>
-            <p className="text-muted" style={{ fontSize: '14px' }}>{u.email}</p>
-          </div>
+          <section className="admin-user-list">
+              {users.map((listedUser) => (
+                  <article
+                      className={
+                          listedUser.user_id === user.user_id
+                              ? 'admin-user-card current-user'
+                              : 'admin-user-card'
+                      }
+                      key={listedUser.user_id}
+                  >
+                      <div className="admin-user-information">
+                          <div className="admin-user-name">
+                              <strong>{listedUser.name}</strong>
+                              {/* role badge */}
+                              <span
+                                  className={
+                                      listedUser.role === 'admin'
+                                          ? 'admin-role-badge admin'
+                                          : 'admin-role-badge'
+                                  }
+                              >
+                                  {listedUser.role ?? 'user'}
+                              </span>
+                          </div>
 
-          {/* Role badge */}
-          <span style={{
-            padding: '2px 10px',
-            borderRadius: '999px',
-            fontSize: '13px',
-            background: u.role === 'admin' ? 'var(--accent-bg)' : 'var(--code-bg)',
-            color: u.role === 'admin' ? 'var(--accent)' : 'var(--text)',
-            border: u.role === 'admin' ? '1px solid var(--accent-border)' : '1px solid var(--border)'
-          }}>
-            {u.role}
-          </span>
+                          <p>{listedUser.email}</p>
+                      </div>
 
-          {/* Actions — don't show controls for yourself */}
-          {u.user_id !== user.user_id && (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => handleRoleChange(u.user_id, u.role === 'admin' ? 'user' : 'admin')}
-                disabled={updatingId === u.user_id}
-                className="button"
-              >
-                {updatingId === u.user_id
-                  ? 'Updating...'
-                  : u.role === 'admin' ? 'Demote' : 'Make Admin'}
-              </button>
-
-              <button
-                onClick={() => handleDelete(u.user_id)}
-                disabled={deletingId === u.user_id}
-                className="button"
-                style={{ color: 'red', borderColor: 'red' }}
-              >
-                {deletingId === u.user_id ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-    )
+                      {listedUser.user_id !== user.user_id ? (
+                          <div className="admin-user-actions">
+                              <button
+                                  type="button"
+                                  className="admin-action-button"
+                                  disabled={updatingId === listedUser.user_id}
+                                  onClick={() =>
+                                      handleRoleChange(
+                                          listedUser.user_id,
+                                          listedUser.role === 'admin'
+                                              ? 'user'
+                                              : 'admin',
+                                      )
+                                  }
+                              >
+                                  {updatingId === listedUser.user_id
+                                      ? 'Updating...'
+                                      : listedUser.role === 'admin'
+                                          ? 'Demote'
+                                          : 'Make admin'}
+                              </button>
+                                    
+                              <button
+                                  type="button"
+                                  className="admin-action-button delete"
+                                  disabled={deletingId === listedUser.user_id}
+                                  onClick={() =>
+                                      handleDelete(listedUser.user_id)
+                                  }
+                              >
+                                  {deletingId === listedUser.user_id
+                                      ? 'Deleting...'
+                                      : 'Delete'}
+                              </button>
+                          </div>
+                      ) : (
+                          <span className="admin-current-label">
+                              Current account
+                          </span>
+                      )}
+                  </article>
+              ))}
+          </section>
+      </div>
+  )
 }

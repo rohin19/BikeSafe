@@ -12,26 +12,33 @@ function formatRelativeTime(dateString: string) {
 }
 
 export default function HazardCard({ hazard, isAdmin, onDelete, deleting }: HazardCardProps) {
-    return (
-      <div className="card">
-        <div className="card-header">
-          <strong>{hazard.category}</strong>
-          {isAdmin && (
-            <button
-              type="button"
-              className="button danger"
-              disabled={deleting}
-              onClick={() => onDelete(hazard.hazard_id)}
-            >
-              {deleting ? "Deleting..." : "X"}
-            </button>
-          )}
-        </div>
-        <div className="text-muted">
-          Lat {Number(hazard.latitude).toFixed(3)}, Lng{" "}
-          {Number(hazard.longitude).toFixed(3)} .{" "}
-          {formatRelativeTime(hazard.created_at)}
-        </div>
+  return (
+    <article className="card hazard-card">
+      <div className="card-header">
+        <strong>{hazard.title}</strong>
+
+        {isAdmin && (
+          <button
+            type="button"
+            className="button danger"
+            aria-label={`Delete ${hazard.title}`}
+            disabled={deleting}
+            onClick={() => onDelete(hazard.hazard_id)}
+          >
+            {deleting ? '…' : '×'}
+          </button>
+        )}
       </div>
-    );
+
+      <p className="hazard-card-category">
+        {hazard.category} · Severity {hazard.severity}/5
+      </p>
+
+      <p className="text-muted">
+        Lat {Number(hazard.latitude).toFixed(3)}, Lng{' '}
+        {Number(hazard.longitude).toFixed(3)} ·{' '}
+        {formatRelativeTime(hazard.created_at)}
+      </p>
+    </article>
+  )
 }

@@ -1,5 +1,6 @@
 import { authApi } from '../services/api'
 import type { ProfilePageProps } from '../types'
+import '../styles/ProfilePage.css'
 
 export default function ProfilePage({ user, onUserChange }: ProfilePageProps) {
     async function handleLogout() {
@@ -11,12 +12,15 @@ export default function ProfilePage({ user, onUserChange }: ProfilePageProps) {
     }
 
     return (
-        <div className="page">
-            <h1>Profile</h1>
-            <p className="text-muted">{user.name}</p>
-            <p className="text-muted">{user.email}</p>
-
-            <button className="button secondary" onClick={handleLogout}>
+        <div className="profile-page">
+            <header className="profile-header">
+                <h1>Profile</h1>
+            </header>
+            <section className="profile-details">
+                    <span>Username: <strong>{user.name}</strong></span>
+                    <span>Email Address: <strong>{user.email}</strong></span>
+            </section>
+            <button type="button" className="button secondary profile-logout" onClick={handleLogout}>
                 Log out
             </button>
         </div>

@@ -2,14 +2,16 @@ import { useState, type SubmitEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { hazardApi } from "../services/api";
 import type { User } from "../types";
+import Map from '../components/Map'
+import '../styles/ReportHazard.css'
 
 const CATEGORIES = [
-  "construction",
-  "accident",
-  "bike theft",
-  "road condition",
-  "obstacle",
-  "other",
+  "Construction",
+  "Accident",
+  "Bike Theft",
+  "Road Condition",
+  "Obstacle",
+  "Other",
 ] as const;
 
 export default function ReportHazard({ user }: {user: User}) {
@@ -23,11 +25,18 @@ export default function ReportHazard({ user }: {user: User}) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
+  function selectLocation(lat: number, lon: number) {
+    setLatitude(lat.toFixed(6))
+    setLongitude(lon.toFixed(6))
+    setError('')
+  }
+
   function useCurrentLocation() {
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/geolocation
     // returns Geolocation object that gives the web content access to loc of device
     if (!navigator.geolocation) {
       setError("Geolocation is not supported in this browser :(");
+      return;
     }
     //https://developer.mozilla.org/en-US/docs/Web/API/Geolocation/getCurrentPosition
     navigator.geolocation.getCurrentPosition(
@@ -61,85 +70,126 @@ export default function ReportHazard({ user }: {user: User}) {
     }
   }
 
+  const latitudeNumber = Number(latitude)
+  const longitudeNumber = Number(longitude)
+
+  const selectedPoint =
+    latitude !== '' &&
+    longitude !== '' &&
+    Number.isFinite(latitudeNumber) &&
+    Number.isFinite(longitudeNumber)
+      ? { lat: latitudeNumber, lon: longitudeNumber }
+      : null
+
   return (
-    <form className="page" onSubmit={handleSubmit}>
-      <h1>Report a Hazard</h1>
+    <div className="report-page">
+      <header className="report-header">
+        <h1>Report Hazard</h1>
+      </header>
 
-      <label>
-        Title
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-      </label>
+      <form className="report-layout" onSubmit={handleSubmit}>
+        <div className="report-fields">
+          <label>
+            Title
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </label>
 
-      <label>
-        Description
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-        />
-      </label>
+          <label>
+            Description
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+            />
+          </label>
 
-      <label>
-        Category
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </label>
+          <label>
+            Category
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      <label>
-        Severity (1-5)
-        <input
-          type="number"
-          min="1"
-          max="5"
-          value={severity}
-          onChange={(e) => setSeverity(e.target.value)}
-        />
-      </label>
+          <label>
+            Severity (1–5)
+            <input
+              type="number"
+              min="1"
+              max="5"
+              value={severity}
+              onChange={(e) => setSeverity(e.target.value)}
+            />
+          </label>
 
-      <label>
-        Latitude
-        <input
-          type="number"
-          step="any"
-          value={latitude}
-          onChange={(e) => setLatitude(e.target.value)}
-          required
-        />
-      </label>
+          <div className="report-coordinates">
+            <label>
+              Latitude
+              <input
+                type="number"
+                step="any"
+                value={latitude}
+                onChange={(e) => setLatitude(e.target.value)}
+                required
+              />
+            </label>
 
-      <label>
-        Longitude
-        <input
-          type="number"
-          step="any"
-          value={longitude}
-          onChange={(e) => setLongitude(e.target.value)}
-          required
-        />
-      </label>
+            <label>
+              Longitude
+              <input
+                type="number"
+                step="any"
+                value={longitude}
+                onChange={(e) => setLongitude(e.target.value)}
+                required
+              />
+            </label>
+          </div>
 
-      <button
-        type="button"
-        className="button secondary"
-        onClick={useCurrentLocation}
-      >
-        Use my current location
-      </button>
+          <button
+            type="button"
+            className="button secondary"
+            onClick={useCurrentLocation}
+          >
+            Use my current location
+          </button>
 
-      {error && <div className="text-muted">{error}</div>}
+          {error && (
+            <div className="report-error" role="alert">
+              {error}
+            </div>
+          )}
 
-      <button type="submit" className="button primary" disabled={busy}>
-        {busy ? "Submitting…" : "Submit"}
-      </button>
-    </form>
+          <button
+            type="submit"
+            className="button primary"
+            disabled={busy}
+          >
+            {busy ? 'Submitting…' : 'Submit hazard'}
+          </button>
+        </div>
+
+        <section className="report-map-section">
+          <div className="report-map">
+            <Map
+              selectedPoint={selectedPoint}
+              onMapClick={selectLocation}
+            />
+          </div>
+
+          <p>Use the map to select the hazard location.</p>
+        </section>
+      </form>
+    </div>
   );
 }

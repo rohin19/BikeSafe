@@ -14,7 +14,7 @@ import Admin from './pages/Admin'
 import { authApi } from './services/api'
 import type { User } from './types'
 
-import './App.css'
+import './styles/App.css'
 
 function App() {
   const [user, setUser] = useState<User | null>(null)

@@ -148,6 +148,11 @@ export interface MapProps {
     route?: RouteDisplay | null;
     onMapClick?: (lat:number, lon:number) => void;
     flyTo?: { lat: number; lon: number } | null;
+    selectedPoint?: {
+        lat: number;
+        lon: number
+    } | null
+    liveLocation?: { lat: number; lon: number } | null;
 }
 
 export type PickingMode = 'start' | 'destination';
