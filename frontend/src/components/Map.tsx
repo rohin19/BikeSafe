@@ -8,11 +8,12 @@ import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
 export default function Map ({
-  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo}: MapProps) {
+  stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo, liveLocation}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const leafletMapRef = useRef<L.Map | null>(null);
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const liveLocationLayerRef = useRef<L.LayerGroup | null>(null);
   const onMapClickRef = useRef(onMapClick);
 
   useEffect(() => {
@@ -33,11 +34,13 @@ export default function Map ({
     ).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
-    const routeLayer = L.layerGroup().addTo(map); 
+    const routeLayer = L.layerGroup().addTo(map);
+    const liveLocationLayer = L.layerGroup().addTo(map);
 
     leafletMapRef.current = map;
     markersLayerRef.current = markersLayer;
     routeLayerRef.current = routeLayer;
+    liveLocationLayerRef.current = liveLocationLayer;
 
     function updateBounds() {
       const bounds = map.getBounds();
@@ -64,6 +67,7 @@ export default function Map ({
       leafletMapRef.current = null;
       markersLayerRef.current = null;
       routeLayerRef.current = null;
+      liveLocationLayerRef.current = null;
     };
   }, []);
 
@@ -172,6 +176,30 @@ export default function Map ({
     if (!flyTo || !leafletMapRef.current) return;
     leafletMapRef.current.flyTo([flyTo.lat, flyTo.lon], 15);
   }, [flyTo]);
+
+  // draws/moves the live navigation position marker, on its own layer so it doesn't get wiped by route redraws
+  useEffect(() => {
+    const liveLocationLayer = liveLocationLayerRef.current;
+    const map = leafletMapRef.current;
+    if (!liveLocationLayer || !map) return;
+
+    liveLocationLayer.clearLayers();
+    if (!liveLocation) return;
+
+    const liveIcon = L.divIcon({
+      className: "clean-map-icon",
+      html: `<div class="marker-dot live"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+
+    L.marker([liveLocation.lat, liveLocation.lon], { icon: liveIcon }).addTo(liveLocationLayer);
+
+    // only recenter when the marker actually leaves the visible area - don't fight the user's own panning/zooming
+    if (!map.getBounds().contains([liveLocation.lat, liveLocation.lon])) {
+      map.panTo([liveLocation.lat, liveLocation.lon]);
+    }
+  }, [liveLocation]);
 
   return (
     <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>
