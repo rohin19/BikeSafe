@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { hazardApi } from '../services/api'
 import type { User, Hazard, HazardStats } from '../types'
 import Map from '../components/Map'
+import { computeReportedToday, computeReportedByYou } from './homeStats'
 import '../styles/Home.css'
 
 export default function Home({ user }: {user: User}) {
