@@ -180,7 +180,8 @@ export default function Map ({
   // draws/moves the live navigation position marker, on its own layer so it doesn't get wiped by route redraws
   useEffect(() => {
     const liveLocationLayer = liveLocationLayerRef.current;
-    if (!liveLocationLayer) return;
+    const map = leafletMapRef.current;
+    if (!liveLocationLayer || !map) return;
 
     liveLocationLayer.clearLayers();
     if (!liveLocation) return;
@@ -193,6 +194,11 @@ export default function Map ({
     });
 
     L.marker([liveLocation.lat, liveLocation.lon], { icon: liveIcon }).addTo(liveLocationLayer);
+
+    // only recenter when the marker actually leaves the visible area - don't fight the user's own panning/zooming
+    if (!map.getBounds().contains([liveLocation.lat, liveLocation.lon])) {
+      map.panTo([liveLocation.lat, liveLocation.lon]);
+    }
   }, [liveLocation]);
 
   return (
