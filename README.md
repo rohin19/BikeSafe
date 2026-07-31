@@ -7,6 +7,8 @@ Group 10: Elton Chen, Tim Supan, Rohin Aulakh, Dat Chau, Yu Wu
 
 # Setup
 Deployed URL - https://34.187.197.133/  
+API Docs - https://34.187.197.133/api-docs/
+
 Both DB and Web-app deployed on GCP VM instances  
 No container system used so far
 
