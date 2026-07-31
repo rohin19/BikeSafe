@@ -7,6 +7,12 @@ import StationPopup from "./StationPopup";
 import FreeBikePopup from "./FreeBikePopup";
 import HazardPopup from "./HazardPopup";
 
+L.Icon.Default.mergeOptions({
+  iconUrl: '/marker-icon.png',
+  iconRetinaUrl: '/marker-icon-2x.png',
+  shadowUrl: '/marker-shadow.png'
+})
+
 export default function Map ({
   stations = [], freeBikes = [], hazards = [], onBoundsChange, route, onMapClick, flyTo, selectedPoint, liveLocation}: MapProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
