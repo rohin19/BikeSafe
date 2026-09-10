@@ -1,8 +1,12 @@
 import type { User, Hazard, NewHazard, HazardStats, Route, NewReview, ReviewFilters, UpdateReview } from '../types'
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
+
 async function apiRequest(path:string, options: RequestInit = {}) {
+    const url = path.startsWith('http') ? path : `${API_BASE}${path}`
+
     // includes credential cuz authentication uses http only cookie
-    const response = await fetch(path, {
+    const response = await fetch(url, {
         credentials: 'include',
         ...options,
         headers: {

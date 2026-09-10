@@ -19,16 +19,21 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(cookieParser());
 
-// development CORS configuration
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://your-app.vercel.app',
-  'https://your-api.onrender.com'
-];
+const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
 }));
 
 app.use('/api/auth', authRouter);
