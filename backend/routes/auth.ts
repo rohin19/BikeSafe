@@ -12,11 +12,11 @@ function setAuthCookie(res: Response, payload: JwtPayload): void {
     const token = jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: '2h'});
     // res.cookie builds an HTP header that tels the browser to store the cookie (serialzies all this into one raw header string)
     res.cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'lax', // dont attach this cookie to reqs originating from diff website (strict|lax|none)
-        secure: process.env.NODE_ENV === 'production', // send cookie over HTTPS in prod only, HTTP for dev
-        maxAge: SESSION_DURATION_MS
-    }); 
+    httpOnly: true,
+    sameSite: 'none',
+    secure: true,
+    maxAge: SESSION_DURATION_MS
+    });
 }
 
 const router = Router();

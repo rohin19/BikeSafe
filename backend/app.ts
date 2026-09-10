@@ -20,7 +20,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 // development CORS configuration
-const allowedOrigins = process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : 'https://34.187.197.133';
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://your-app.vercel.app',
+  'https://your-api.onrender.com'
+];
 
 app.use(cors({
   origin: allowedOrigins,
