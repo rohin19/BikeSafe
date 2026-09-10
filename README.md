@@ -1,16 +1,18 @@
 # BikeSafe Vancouver
-### CMPT 372 - Project Proposal
-Group 10: Elton Chen, Tim Supan, Rohin Aulakh, Dat Chau, Yu Wu
+Elton Chen, Tim Supan, Rohin Aulakh, Dat Chau, Yu Wu
 
-# Setup
-Deployed URL - https://34.187.197.133/  
-API Docs - https://34.187.197.133/api-docs/
-
-Both DB and Web-app deployed on GCP VM instances  
-No container system used so far
-
-### The name of our application is BikeSafe
 A web application designed to help cyclists plan their routes according to safety, not just distance and elevation. In addition, it will provide information on bike dock availability for bike share services. This application would also provide navigation and real-time user reported alerts to improve biking experience around the city. Moreover, our application would provide route discovery and reviews of existing routes based on users in their area. 
+
+# Links
+Vercel Deployment - https://bike-safe-project.vercel.app/  
+Backend Deployment - https://bikesafe-ih2h.onrender.com/  
+Express Health Check - https://bikesafe-ih2h.onrender.com/api/health  
+Database Health Check - https://bikesafe-ih2h.onrender.com/api/health/db  
+API Documentation - https://bikesafe-ih2h.onrender.com/api-docs  
+
+The project was once hosted through a GCP VM Instance with an Nginx reverse proxy.  
+Currently the frontend is hosted on Vercel, backend on Render, and database on Supabase.  
+GCP URL (Outdated) - https://34.187.197.133/  
 
 ### The problem we aim to solve
 Current route planning apps treat all roads as interchangeable and do not consider safety as part of their route planning. 
